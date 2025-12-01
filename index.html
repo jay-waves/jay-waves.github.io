@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>你的名字 - 个人简历</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="你的名字 - 个人简历 / CV" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --bg-card: #ffffff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border: #e5e7eb;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.12);
+      --radius-xl: 18px;
+      --radius-full: 999px;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top left, #eef2ff, #f9fafb);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      padding: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      backdrop-filter: blur(12px);
+    }
+
+    header {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-soft);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+      background: #e5e7eb;
+    }
+
+    .status-dot {
+      position: absolute;
+      right: 4px;
+      bottom: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background-color: #22c55e;
+      box-shadow: 0 0 0 3px #f9fafb;
+    }
+
+    .header-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .name {
+      font-size: 30px;
+      font-weight: 750;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .title {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+    }
+
+    .contact-item strong {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Layout */
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.4fr);
+      gap: 24px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      font-size: 12px;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .about {
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+
+    .skill-badge span {
+      opacity: 0.7;
+      font-size: 11px;
+    }
+
+    .item {
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .item-sub {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 4px;
+    }
+
+    .item-desc {
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .item-desc ul {
+      margin-left: 18px;
+      margin-top: 4px;
+    }
+
+    .item-desc li {
+      margin-bottom: 3px;
+    }
+
+    .links-list {
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .links-list a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    footer {
+      margin-top: 18px;
+      text-align: right;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    footer span {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f3f4f6;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .avatar-wrapper {
+        width: 90px;
+        height: 90px;
+      }
+
+      .name {
+        font-size: 24px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <!-- 顶部：头像 + 基本信息 -->
+      <header>
+        <div class="avatar-wrapper">
+          <!-- TODO: 把 avatar.jpg 换成你的头像文件名，放在同一目录 -->
+          <img src="avatar.jpg" alt="个人头像" class="avatar" />
+          <div class="status-dot" title="Open to opportunities"></div>
+        </div>
+
+        <div class="header-main">
+          <div class="name">你的名字 Your Name</div>
+          <div class="title">职位 / 方向 · 城市 / Remote</div>
+
+          <div class="tags">
+            <span class="tag">后端开发</span>
+            <span class="tag">Go / Rust / Linux</span>
+            <span class="tag">测试与 Fuzzing</span>
+          </div>
+
+          <div class="contact">
+            <div class="contact-item">
+              <strong>Email</strong> you@example.com
+            </div>
+            <div class="contact-item">
+              <strong>GitHub</strong>
+              <a href="https://github.com/yourname" target="_blank">
+                github.com/yourname
+              </a>
+            </div>
+            <div class="contact-item">
+              <strong>Blog</strong>
+              <a href="https://yourname.github.io" target="_blank">
+                yourname.github.io
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 主体布局：左信息 / 右经历 -->
+      <main class="layout">
+        <!-- 左侧：简介、技能、链接 -->
+        <section>
+          <div class="section">
+            <div class="section-title">ABOUT</div>
+            <div class="pill">
+              <span class="pill-dot"></span>
+              <span>个人简介</span>
+            </div>
+            <p class="about">
+              简短介绍你自己：例如 xx 年开发经验，擅长某些技术栈，对哪些方向感兴趣，
+              有哪些代表项目或成果。建议 3～4 句话，突出关键词和优势。
+            </p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">SKILLS</div>
+            <div class="skills-grid">
+              <div class="skill-badge">Go / Python <span>后端开发</span></div>
+              <div class="skill-badge">Linux / Network <span>系统与协议</span></div>
+              <div class="skill-badge">Fuzzing / Testing <span>质量保障</span></div>
+              <div class="skill-badge">Docker / K8s <span>部署与运维</span></div>
+              <div class="skill-badge">Git / CI/CD <span>工程化</span></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">LINKS</div>
+            <div class="links-list">
+              <a href="https://github.com/yourname" target="_blank">
+                <span class="dot"></span> GitHub · 主要开源项目
+              </a>
+              <a href="https://yourname.github.io" target="_blank">
+                <span class="dot"></span> Blog · 技术文章与笔记
+              </a>
+              <a href="https://www.linkedin.com/in/yourname" target="_blank">
+                <span class="dot"></span> LinkedIn · 工作经历
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右侧：工作经历 / 项目 / 教育 -->
+        <section>
+          <div class="section">
+            <div class="section-title">EXPERIENCE</div>
+
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">高级后端工程师 · 某科技公司</div>
+                <div class="item-meta">2021.03 - 至今 ｜ 城市</div>
+              </div>
+              <div class="item-sub">负责核心服务的设计与实现，重点在高并发、可靠性与测试质量。</div>
+              <div class="item-desc">
+                <ul>
+                  <li>负责 xxx 系统的架构设计与落地，将平均响应时间降低 40%。</li>
+                  <li>建设自动化测试与 Fuzzing 体系，减少线上故障 xx%。</li>
+                  <li>推动 CI/CD 流水线优化，加速发布节奏到每周多次。</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">后端工程师 · 某互联网公司</div>
+                <div class="item-meta">2018.07 - 2021.02 ｜ 城市</div>
+              </div>
+              <div class="item-sub">参与多项业务后端的开发与重构，提升系统稳定性和可维护性。</div>
+              <div class="item-desc">
+                <ul>
+                  <li>负责 xx 模块开发，提升吞吐量与稳定性。</li>
+                  <li>参与微服务拆分与重构，完善监控与告警体系。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">PROJECTS</div>
+
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">某开源项目 / 工具</div>
+                <div class="item-meta">
+                  <a href="https://github.com/yourname/your-project" target="_blank">
+                    github.com/yourname/your-project
+                  </a>
+                </div>
+              </div>
+              <div class="item-sub">项目一句话介绍，例如：针对 xx 场景的测试工具 / 协议栈 fuzzing 框架。</div>
+              <div class="item-desc">
+                <ul>
+                  <li>实现 xx 功能，用于 xxx，获得 xx Star / 被社区引用。</li>
+                  <li>支持多种协议 / 平台，易于集成到现有 CI 流程。</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">个人网站 & 技术博客</div>
+                <div class="item-meta">
+                  <a href="https://yourname.github.io" target="_blank">
+                    yourname.github.io
+                  </a>
+                </div>
+              </div>
+              <div class="item-sub">
+                使用 GitHub Pages + 静态站点生成器（例如 Hugo / Hexo / MkDocs）搭建，记录技术文章与实验笔记。
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">EDUCATION</div>
+
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">某某大学 · 计算机科学与技术</div>
+                <div class="item-meta">2014.09 - 2018.06</div>
+              </div>
+              <div class="item-desc">
+                <ul>
+                  <li>主修：数据结构与算法、操作系统、计算机网络、编译原理等。</li>
+                  <li>参加编程竞赛 / 开源社团，积累实践经验。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <span>最后更新：2025-12 · 可根据需求提供英文版简历</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
+
