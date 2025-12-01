@@ -2,9 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>你的名字 - 个人简历</title>
+  <title>个人主页</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="你的名字 - 个人简历 / CV" />
+  <meta name="description" content="个人主页" />
   <style>
     :root {
       --bg: #f5f5f7;
@@ -36,7 +36,7 @@
     }
 
     .page {
-      max-width: 1080px;
+      max-width: 1560px;
       margin: 0 auto;
     }
 
@@ -335,47 +335,38 @@
 <body>
   <div class="page">
     <div class="card">
-      <!-- 顶部：头像 + 基本信息 -->
+      <!-- 顶部 -->
       <header>
         <div class="avatar-wrapper">
-          <!-- TODO: 把 avatar.jpg 换成你的头像文件名，放在同一目录 -->
           <img src="avatar.jpg" alt="个人头像" class="avatar" />
           <div class="status-dot" title="Open to opportunities"></div>
         </div>
 
         <div class="header-main">
-          <div class="name">你的名字 Your Name</div>
-          <div class="title">职位 / 方向 · 城市 / Remote</div>
+          <div class="name">于珈尉</div>
+          <div class="title">北京 / 研究生</div>
 
           <div class="tags">
-            <span class="tag">后端开发</span>
-            <span class="tag">Go / Rust / Linux</span>
-            <span class="tag">测试与 Fuzzing</span>
+            <span class="tag">C++ / Linux</span>
+            <span class="tag">固件漏洞挖掘</span>
           </div>
 
           <div class="contact">
             <div class="contact-item">
-              <strong>Email</strong> you@example.com
+              <strong>Email</strong> yujiawei@buaa.edu.cn
             </div>
             <div class="contact-item">
               <strong>GitHub</strong>
-              <a href="https://github.com/yourname" target="_blank">
-                github.com/yourname
-              </a>
-            </div>
-            <div class="contact-item">
-              <strong>Blog</strong>
-              <a href="https://yourname.github.io" target="_blank">
-                yourname.github.io
+              <a href="https://github.com/jay-waves" target="_blank">
+                github.com/jay-waves
               </a>
             </div>
           </div>
         </div>
       </header>
 
-      <!-- 主体布局：左信息 / 右经历 -->
       <main class="layout">
-        <!-- 左侧：简介、技能、链接 -->
+        <!-- 左侧：个人简介 -->
         <section>
           <div class="section">
             <div class="section-title">ABOUT</div>
@@ -384,105 +375,60 @@
               <span>个人简介</span>
             </div>
             <p class="about">
-              简短介绍你自己：例如 xx 年开发经验，擅长某些技术栈，对哪些方向感兴趣，
-              有哪些代表项目或成果。建议 3～4 句话，突出关键词和优势。
+              从事漏洞挖掘工作, 研究兴趣为硬件驱动及操作系统可观测性.
             </p>
           </div>
 
           <div class="section">
             <div class="section-title">SKILLS</div>
             <div class="skills-grid">
-              <div class="skill-badge">Go / Python <span>后端开发</span></div>
-              <div class="skill-badge">Linux / Network <span>系统与协议</span></div>
-              <div class="skill-badge">Fuzzing / Testing <span>质量保障</span></div>
-              <div class="skill-badge">Docker / K8s <span>部署与运维</span></div>
-              <div class="skill-badge">Git / CI/CD <span>工程化</span></div>
+              <div class="skill-badge">Go/C++ <span>后端开发</span></div>
+              <div class="skill-badge">Linux <span>操作系统裁剪</span></div>
+              <div class="skill-badge">eBPF <span>操作系统观测</span></div>
+              <div class="skill-badge">Fuzzing <span>各类模糊测试</span></div>
             </div>
           </div>
 
           <div class="section">
             <div class="section-title">LINKS</div>
             <div class="links-list">
-              <a href="https://github.com/yourname" target="_blank">
-                <span class="dot"></span> GitHub · 主要开源项目
-              </a>
-              <a href="https://yourname.github.io" target="_blank">
-                <span class="dot"></span> Blog · 技术文章与笔记
-              </a>
-              <a href="https://www.linkedin.com/in/yourname" target="_blank">
-                <span class="dot"></span> LinkedIn · 工作经历
+            <!-- 主要开源项目, LinkedIn 工作经历, 个人 CVE 列表 -->
+              <a href="https://github.com/jay-waves/til" target="_blank">
+                <span class="dot"></span> Blog · 个人笔记 
               </a>
             </div>
           </div>
         </section>
 
-        <!-- 右侧：工作经历 / 项目 / 教育 -->
+        <!-- 右侧：项目经历 / 教育 -->
         <section>
           <div class="section">
             <div class="section-title">EXPERIENCE</div>
 
             <div class="item">
               <div class="item-header">
-                <div class="item-title">高级后端工程师 · 某科技公司</div>
-                <div class="item-meta">2021.03 - 至今 ｜ 城市</div>
+                <div class="item-title">测试开发工程师 · 北京轩宇信息公司</div>
+                <div class="item-meta">2025.04 - 至今</div>
               </div>
-              <div class="item-sub">负责核心服务的设计与实现，重点在高并发、可靠性与测试质量。</div>
+              <div class="item-sub">负责 SPARC 架构航天器嵌入式软件的缺陷分析</div>
               <div class="item-desc">
-                <ul>
-                  <li>负责 xxx 系统的架构设计与落地，将平均响应时间降低 40%。</li>
-                  <li>建设自动化测试与 Fuzzing 体系，减少线上故障 xx%。</li>
-                  <li>推动 CI/CD 流水线优化，加速发布节奏到每周多次。</li>
-                </ul>
               </div>
             </div>
-
-            <div class="item">
-              <div class="item-header">
-                <div class="item-title">后端工程师 · 某互联网公司</div>
-                <div class="item-meta">2018.07 - 2021.02 ｜ 城市</div>
-              </div>
-              <div class="item-sub">参与多项业务后端的开发与重构，提升系统稳定性和可维护性。</div>
-              <div class="item-desc">
-                <ul>
-                  <li>负责 xx 模块开发，提升吞吐量与稳定性。</li>
-                  <li>参与微服务拆分与重构，完善监控与告警体系。</li>
-                </ul>
-              </div>
-            </div>
-          </div>
 
           <div class="section">
             <div class="section-title">PROJECTS</div>
 
             <div class="item">
               <div class="item-header">
-                <div class="item-title">某开源项目 / 工具</div>
+                <div class="item-title">ROCF</div>
                 <div class="item-meta">
-                  <a href="https://github.com/yourname/your-project" target="_blank">
-                    github.com/yourname/your-project
+                  <a href="https://doi.org/10.1109/TIFS.2025.3592562" target="_blank">
+                   TIFS.2025.3592562
                   </a>
                 </div>
               </div>
-              <div class="item-sub">项目一句话介绍，例如：针对 xx 场景的测试工具 / 协议栈 fuzzing 框架。</div>
+              <div class="item-sub">针对机器人操作系统 (ROS2) 的模糊测试框架, 见刊于 TIFS2025 (CCF-A). 本人为第四作者, 学生二作.</div>
               <div class="item-desc">
-                <ul>
-                  <li>实现 xx 功能，用于 xxx，获得 xx Star / 被社区引用。</li>
-                  <li>支持多种协议 / 平台，易于集成到现有 CI 流程。</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="item">
-              <div class="item-header">
-                <div class="item-title">个人网站 & 技术博客</div>
-                <div class="item-meta">
-                  <a href="https://yourname.github.io" target="_blank">
-                    yourname.github.io
-                  </a>
-                </div>
-              </div>
-              <div class="item-sub">
-                使用 GitHub Pages + 静态站点生成器（例如 Hugo / Hexo / MkDocs）搭建，记录技术文章与实验笔记。
               </div>
             </div>
           </div>
@@ -492,14 +438,11 @@
 
             <div class="item">
               <div class="item-header">
-                <div class="item-title">某某大学 · 计算机科学与技术</div>
-                <div class="item-meta">2014.09 - 2018.06</div>
+                <div class="item-title">北京航空航天大学 · 网络空间安全学院</div>
+                <div class="item-meta">2021.09 - 2028.06</div>
               </div>
               <div class="item-desc">
-                <ul>
-                  <li>主修：数据结构与算法、操作系统、计算机网络、编译原理等。</li>
-                  <li>参加编程竞赛 / 开源社团，积累实践经验。</li>
-                </ul>
+                  从大二起从事系统软件安全研究, 主修操作系统. 
               </div>
             </div>
           </div>
@@ -507,7 +450,7 @@
       </main>
 
       <footer>
-        <span>最后更新：2025-12 · 可根据需求提供英文版简历</span>
+        <span>最后更新：2025-12</span>
       </footer>
     </div>
   </div>
