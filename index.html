@@ -164,6 +164,33 @@
       margin-bottom: 20px;
     }
 
+    .skills-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .skills-list li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.65;
+    }
+
+    .skill-dot {
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
     .section-title {
       font-size: 14px;
       font-weight: 700;
@@ -371,19 +398,44 @@
           <div class="section">
             <div class="section-title">ABOUT</div>
             <p class="about">
-              从事漏洞挖掘工作, 研究兴趣为硬件驱动及操作系统可观测性.
+              期望从事后端开发, 以及应用层驱动开发. 本人注重流程与规范, 希望减少沟通成本. 对代码质量有追求, 不糊弄!
             </p>
           </div>
 
           <div class="section">
             <div class="section-title">SKILLS</div>
-            <div class="skills-grid">
-              <div class="skill-badge">Go/C++ <span>后端开发</span></div>
-              <div class="skill-badge">Linux <span>操作系统裁剪</span></div>
-              <div class="skill-badge">eBPF <span>操作系统观测</span></div>
-              <div class="skill-badge">Fuzzing <span>各类模糊测试</span></div>
-            </div>
-          </div>
+
+              <ul class="skills-list">
+                <li>
+                  <span class="skill-dot"></span>
+                  熟悉 操作系统, 计算机网络, 数据结构与算法
+                </li>
+                <li>
+                  <span class="skill-dot"></span>
+                  掌握 C++20, Python. 熟悉 Go, C, Shell (Bash / PowerShell)
+                </li>
+                <li>
+                  <span class="skill-dot"></span>
+                  日常使用 Fedora Linux 远程开发, 使用 Git / GitHub 进行多人协作
+                </li>
+                <li>
+                  <span class="skill-dot"></span>
+                  熟悉 C/C++ 工程化构建 (CMake + Ninja, vcpkg), 可排查 MSVC / LLVM 下的 ABI 与符号冲突问题. 具备使用 LLVM Pass 插桩的经验
+                </li>
+                <li>
+                  <span class="skill-dot"></span>
+                  熟悉多线程与多进程开发范式, 理解常见面向对象设计模式.
+                </li>
+                <li>
+                  <span class="skill-dot"></span>
+                  注重测试与质量保障: 单元/集成测试, Sanitizers 与覆盖率分析. 部署过 GitLab CI/CD
+                </li>
+                <li>
+                  <span class="skill-dot"></span>
+                  熟悉 Linux 调试与性能分析工具, 对内核网络与驱动系统有一定研究
+                </li>
+                <li></li>
+              </ul>
 
           <div class="section">
             <div class="section-title">LINKS</div>
@@ -404,7 +456,7 @@
             <div class="item">
               <div class="item-header">
                 <div class="item-title">测试开发工程师 · 北京轩宇信息公司</div>
-                <div class="item-meta">2025.04 - 至今</div>
+                <div class="item-meta">2025.04 - 2025.12</div>
               </div>
               <div class="item-sub">负责 SPARC 架构航天器嵌入式软件的缺陷分析</div>
               <div class="item-desc">
@@ -435,10 +487,10 @@
             <div class="item">
               <div class="item-header">
                 <div class="item-title">硕士 · 北京航空航天大学 · 网络空间安全学院</div>
-                <div class="item-meta">2025.09 - 2026.06 (肄业)</div>
+                <div class="item-meta">2025.09 - 2026.06 ()</div>
               </div>
               <div class="item-desc">
-                  从事系统安全研究, 主要是嵌入式软件的安全分析
+                  从事系统安全研究, 主要是嵌入式软件的安全分析. 师从<a href="https://github.com/baijiaju/baijiaju.github.io">白家驹</a>教授.
               </div>
             </div>
             <div class="item">
@@ -455,7 +507,7 @@
       </main>
 
       <footer>
-        <span>最后更新：2025-12</span>
+        <span>最后更新: 2026-01-06</span>
       </footer>
     </div>
   </div>
