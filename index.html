@@ -61,14 +61,14 @@
     .avatar-wrapper {
       position: relative;
       width: 112px;
-      height: 112px;
+      aspect-ratio: 3 / 4;
       flex-shrink: 0;
     }
 
     .avatar {
-      width: 100%;
       height: 100%;
-      border-radius: 50%;
+      width: 100%;
+      border-radius: 16px;
       object-fit: cover;
       border: 3px solid var(--accent-soft);
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
@@ -77,7 +77,7 @@
 
     .status-dot {
       position: absolute;
-      right: 4px;
+      right: 6px;
       bottom: 8px;
       width: 16px;
       height: 16px;
@@ -365,13 +365,13 @@
       <!-- 顶部 -->
       <header>
         <div class="avatar-wrapper">
-          <img src="avatar.jpg" alt="个人头像" class="avatar" />
+          <img src="me.png" alt="个人头像" class="avatar" />
           <div class="status-dot" title="Open to opportunities"></div>
         </div>
 
         <div class="header-main">
           <div class="name">于珈尉</div>
-          <div class="title">北京 / 北航研 / 后端开发</div>
+          <div class="title">北京 / 北航本硕 / 后端开发</div>
 
           <!-- <div class="tags">
             <span class="tag">C++ / Go</span>
@@ -388,7 +388,7 @@
             <div class="contact-item">
               <strong>GitHub</strong>
               <a href="https://github.com/jay-waves" target="_blank">
-                github.com/jay-waves
+                jay-waves
               </a>
             </div>
           </div>
