@@ -52,14 +52,20 @@ export const intro: IntroContent = {
 export const timelineEntries: TimelineEntry[] = [
   {
     period: '2021.09 - 2025.06',
-    title: 'B.S. · Beihang University',
-    text: 'School of Cyber Science and Technology, Information Security. GPA 3.76/4.00, average score 90.',
+    title: 'B.S. in Information Security · Beihang University',
+    text: 'School of Cyber Science and Technology. GPA 3.76/4.00, average score 90.',
     category: 'Education',
   },
   {
     period: '2025.09 - 2026.08',
-    title: 'M.S. · Beihang University · Incomplete',
-    text: 'School of Cyber Science and Technology, Cyberspace and Information Security. Focused on systems security research.',
+    title: 'M.S. in Information Security· Beihang University · Dropped out',
+    text: 'School of Cyber Science and Technology. Focused on systems security research.',
+    category: 'Education',
+  },
+  {
+    period: '2026.09 - Present',
+    title: 'M.S. in Computer Science · The University of Hong Kong',
+    text: 'School of Computing and Data Science. Focused on robotics research.',
     category: 'Education',
   },
 //   {
@@ -70,7 +76,7 @@ export const timelineEntries: TimelineEntry[] = [
 //   },
   {
     period: '06/2023 - 10/2025',
-    title: 'Research Project · BASS Lab',
+    title: 'Robotics Researcher · BASS Lab',
     text: 'Designed vulnerability discovery methods for Nav2 and ROS2 autonomous driving libraries using C++17, Python, LLVM, and Docker.',
     category: 'Internship',
   },
