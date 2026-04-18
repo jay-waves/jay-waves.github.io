@@ -61,18 +61,18 @@ function App() {
 
   return (
     <>
-      <main ref={mainRef} className="fullpage-shell">
+      <main ref={mainRef} className="h-screen snap-y snap-mandatory overflow-y-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" >
         <Hero />
         <Narrative />
         <Bento />
       </main>
 
-      <nav className="page-dots" aria-label="Section navigation">
+      <nav className="fixed top-1/2 right-4 z-30 grid -translate-y-1/2 gap-[0.55rem] max-[960px]:right-[0.6rem]" aria-label="Section navigation" >
         {panels.map((panel) => (
           <button
             key={panel.id}
             type="button"
-            className={panel.id === activePanel ? 'is-active' : ''}
+            className={`h-[10px] w-[10px] cursor-pointer rounded-full border-[1.5px] border-[rgba(137,158,157,0.30)] bg-transparent transition-transform duration-[180ms] hover:scale-[1.15] ${panel.id === activePanel ? 'border-[var(--accent)] bg-[var(--accent)]' : ''}`}
             onClick={() => scrollToPanel(panel.id)}
             aria-label={panel.label}
             title={panel.label}

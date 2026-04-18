@@ -67,25 +67,21 @@ function getCardClass(type: string) {
 
 export function Bento() {
   return (
-    <section id="panel-bento" className="bento-section snap-panel" aria-label="Info summary">
-      <header className="bento-header">
-        <h2>Overview</h2>
+    <section id="panel-bento" aria-label="Info summary" className="snap-panel grid min-h-[100svh] snap-start content-center justify-items-center gap-[1.2rem] border-t border-[var(--line)] p-[clamp(1.1rem,3vw,3rem)]">
+      <header className="flex w-[min(100%,1160px)] items-baseline justify-between gap-4 border-b border-dashed border-[var(--line)] pb-3 max-[960px]:flex-col max-[960px]:items-start">
+        <h2 className="text-3xl leading-tight tracking-[0.02em] max-[960px]:text-[1.75rem]">Overview</h2>
       </header>
 
       <div className="bento-grid">
         {bentoCards.map((card) => (
-          <article
-            key={card.type}
-            className={`bento-card card-${card.type} ${getCardClass(card.type)}`}
-          >
+          <article key={card.type} className={`bento-card card-${card.type} ${getCardClass(card.type)}`} >
             <h3>{card.title}</h3>
             {card.type === 'contact' ? (
               <ul className="contact-list">
                 {contactItems.map((item) => (
                   <li key={item.label}>
                     {item.href ? (
-                      <a
-                        className="contact-link"
+                      <a className="contact-link"
                         href={item.href}
                         target={item.href.startsWith('http') ? '_blank' : undefined}
                         rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
