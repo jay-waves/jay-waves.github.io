@@ -19,7 +19,7 @@ export type IntroContent = {
 
 export type BentoCardType =
   | 'about'
-  | 'skills'
+  | 'emotion'
   | 'publication'
   | 'education'
   | 'contact'
@@ -43,6 +43,16 @@ export type GitHubProfile = {
   label: string
 }
 
+export type SkillSegment = {
+  text: string
+  emphasis?: boolean
+}
+
+export type SkillItem = {
+  key: string
+  segments: SkillSegment[]
+}
+
 export const intro: IntroContent = {
   name: 'Yu, Jia-Wei',
   role: 'Robotics Software Engineer',
@@ -52,13 +62,13 @@ export const intro: IntroContent = {
 export const timelineEntries: TimelineEntry[] = [
   {
     period: '2021.09 - 2025.06',
-    title: 'B.S. in Information Security · Beihang University',
-    text: 'School of Cyber Science and Technology. GPA 3.76/4.00, average score 90.',
+    title: 'B.Eng. in Information Security · Beihang University',
+    text: 'School of Cyber Science and Technology. GPA 3.76/4.00.',
     category: 'Education',
   },
   {
     period: '2025.09 - 2026.08',
-    title: 'M.S. in Information Security· Beihang University · Dropped out',
+    title: 'M.Eng. in Information Security · Beihang University · Dropped out',
     text: 'School of Cyber Science and Technology. Focused on systems security research.',
     category: 'Education',
   },
@@ -68,8 +78,7 @@ export const timelineEntries: TimelineEntry[] = [
     text: 'School of Computing and Data Science. Focused on robotics research.',
     category: 'Education',
   },
-//   {
-//     period: '06/2024 - 09/2024',
+//   { //     period: '06/2024 - 09/2024',
 //     title: 'Internship · Penetration Testing Engineer · DBAPPSecurity',
 //     text: 'Joined the 2025 Ministry of Public Security HW blue-team defense exercise and handled on-site gateway deployment and debugging.',
 //     category: 'experience',
@@ -77,33 +86,28 @@ export const timelineEntries: TimelineEntry[] = [
   {
     period: '06/2023 - 10/2025',
     title: 'Robotics Researcher · BASS Lab',
-    text: 'Designed vulnerability discovery methods for Nav2 and ROS2 autonomous driving libraries using C++17, Python, LLVM, and Docker.',
+    text: 'Designed vulnerability discovery methods for Nav2 and ROS2 autonomous driving softwares.',
     category: 'Internship',
   },
   {
     period: '04/2025 - 01/2026',
     title: 'C++ Engineer · Institute 502',
-    text: 'Led defect analysis tooling for SPARC-based spacecraft embedded software with C++23, QEMU, Capstone, and CMake.',
+    text: 'Led defect analysis tooling for SPARC-based spacecraft embedded softwares',
     category: 'Internship',
   },
   {
     period: '03/2026 - Present',
     title: 'Robotics Engineer · PNDbotics',
-    text: 'Developing robot teleoperation software.',
+    text: 'Developing robot teleoperation softwares.',
     category: 'Internship',
   },
 ]
 
 export const bentoCards: BentoCard[] = [
   {
-    type: 'skills',
-    title: 'Skills',
-    lines: [
-      'CET6 522 / IELTS 6.5(6)',
-      'C++20 and Python; also comfortable with C, Go, Shell, and TypeScript',
-      'Strong Linux development and deployment experience',
-      'Hands-on work with ROS2 and teleoperation systems',
-    ],
+    type: 'emotion',
+    title: 'Emotion',
+    lines: [],
   },
   // {
   //   type: 'publication',
@@ -138,7 +142,7 @@ export const contactItems: ContactItem[] = [
   {
     label: 'WeChat',
     value: 'jay-waves',
-    href: 'weixin://dl/chat?jay-waves',
+    href: '',
     icon: 'wechat',
   },
   {
@@ -160,3 +164,36 @@ export const githubProfile: GitHubProfile = {
   profileUrl: 'https://github.com/jay-waves',
   label: '',
 }
+
+export const skills: SkillItem[] = [
+  {
+    key: 'lang-score',
+    segments: [
+      { text: 'IELTS 6.5 (6)', emphasis: true },
+    ],
+  },
+  {
+    key: 'stack',
+    segments: [
+      { text: 'C++20', emphasis: true },
+      { text: ' and ' },
+      { text: 'Python', emphasis: true },
+      { text: '; also C, Go, Shell, and TypeScript' },
+    ],
+  },
+  {
+    key: 'linux',
+    segments: [
+      { text: 'Strong ' },
+      { text: 'Linux', emphasis: true },
+      { text: ' development and deployment experience' },
+    ],
+  },
+  {
+    key: 'robotics',
+    segments: [
+      { text: 'Hands-on work with ' },
+      { text: 'ROS2 and teleoperation systems', emphasis: true },
+    ],
+  },
+]

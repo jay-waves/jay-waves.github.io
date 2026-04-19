@@ -43,10 +43,6 @@ export function Hero() {
       ref={sectionRef}
     >
       <div className="hero-stage relative grid min-h-[min(72vh,760px)] place-items-center isolate max-[960px]:min-h-[48vh]" aria-hidden="true">
-        <div className="hero-block hero-block-a"></div>
-        <div className="hero-block hero-block-b"></div>
-        <div className="hero-line hero-line-a"></div>
-        <div className="hero-line hero-line-b"></div>
         <AsciiImage
           text={asciiText}
           src="/ascii-art.png"
@@ -63,8 +59,8 @@ export function Hero() {
         <p className="m-0 text-[0.88rem] uppercase tracking-[0.08em] text-[var(--muted)]">{intro.name}</p>
         <h1 className="m-0 max-w-[10ch] text-[clamp(1.65rem,4.6vw,4.7rem)] [font-family:var(--display)] italic">{intro.role}</h1>
         <div className="flex flex-wrap justify-center gap-[0.55rem]" aria-label="Profile summary">
-          <span className="inline-flex rounded-full border border-[rgba(137,158,157,0.16)] bg-[rgba(255,255,255,0.22)] px-[0.62rem] py-[0.34rem] text-[0.78rem] text-[var(--muted)]">Beijing</span>
-          <span className="inline-flex rounded-full border border-[rgba(137,158,157,0.16)] bg-[rgba(255,255,255,0.22)] px-[0.62rem] py-[0.34rem] text-[0.78rem] text-[var(--muted)]">C++ / ROS2</span>
+          <span className="inline-flex rounded-full border border-[rgba(137,158,157,0.16)] bg-[rgba(255,255,255,0.22)] px-[0.62rem] py-[0.34rem] text-[0.78rem] text-[var(--muted)]">Beijing, China</span>
+          <span className="inline-flex rounded-full border border-[rgba(137,158,157,0.16)] bg-[rgba(255,255,255,0.22)] px-[0.62rem] py-[0.34rem] text-[0.78rem] text-[var(--muted)]">C++</span>
           <span className="inline-flex rounded-full border border-[rgba(137,158,157,0.16)] bg-[rgba(255,255,255,0.22)] px-[0.62rem] py-[0.34rem] text-[0.78rem] text-[var(--muted)]">2026 Spring</span>
         </div>
       </div>

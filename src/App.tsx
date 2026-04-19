@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Hero } from './components/hero'
 import { Narrative } from './components/narrative'
 import { Bento } from './components/bento'
+import { BackgroundNoise } from './components/background-noise'
 import './App.css'
 
 function App() {
@@ -61,13 +62,21 @@ function App() {
 
   return (
     <>
-      <main ref={mainRef} className="h-screen snap-y snap-mandatory overflow-y-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" >
+      <BackgroundNoise />
+
+      <main
+        ref={mainRef}
+        className="relative z-10 h-screen snap-y snap-proximity overflow-y-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
         <Hero />
         <Narrative />
         <Bento />
       </main>
 
-      <nav className="fixed top-1/2 right-4 z-30 grid -translate-y-1/2 gap-[0.55rem] max-[960px]:right-[0.6rem]" aria-label="Section navigation" >
+      <nav
+        className="fixed top-1/2 right-4 z-30 grid -translate-y-1/2 gap-[0.55rem] max-[960px]:right-[0.6rem]"
+        aria-label="Section navigation"
+      >
         {panels.map((panel) => (
           <button
             key={panel.id}
