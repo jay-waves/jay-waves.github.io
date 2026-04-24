@@ -126,7 +126,7 @@ export const bentoCards: BentoCard[] = [
       'Email: jay.waves@outlook.com',
       'WeChat: jay-waves',
       'GitHub: github.com/jay-waves',
-      'Blog: github.com/jay-waves/til',
+      'Blog: api.jay-waves.cn/blog',
     //   'CV: oss.jay-waves.cn/cv250304.pdf',
     ],
   },
@@ -153,8 +153,8 @@ export const contactItems: ContactItem[] = [
   },
   {
     label: 'Blog',
-    value: 'blog.jay-waves.cn',
-    href: 'https://blog.jay-waves.cn',
+    value: 'api.jay-waves.cn/blog',
+    href: 'https://api.jay-waves.cn/blog',
     icon: 'blog',
   },
 ]
