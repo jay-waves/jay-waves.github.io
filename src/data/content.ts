@@ -153,8 +153,8 @@ export const contactItems: ContactItem[] = [
   },
   {
     label: 'Blog',
-    value: 'github.com/jay-waves/til',
-    href: 'https://github.com/jay-waves/til',
+    value: 'blog.jay-waves.cn',
+    href: 'https://blog.jay-waves.cn',
     icon: 'blog',
   },
 ]
