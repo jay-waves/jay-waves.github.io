@@ -68,7 +68,7 @@ export const timelineEntries: TimelineEntry[] = [
   },
   {
     period: '2025.09 - 2026.08',
-    title: 'M.Eng. in Information Security · Beihang University · Dropped out',
+    title: 'M.Eng. in Information Security · Beihang University · Incomplete',
     text: 'School of Cyber Science and Technology. Focused on systems security research.',
     category: 'Education',
   },
@@ -153,8 +153,8 @@ export const contactItems: ContactItem[] = [
   },
   {
     label: 'Blog',
-    value: 'api.jay-waves.cn/blog',
-    href: 'https://api.jay-waves.cn/blog',
+    value: 'jay-waves/til',
+    href: 'https://github.com/jay-waves/til/issues',
     icon: 'blog',
   },
 ]
