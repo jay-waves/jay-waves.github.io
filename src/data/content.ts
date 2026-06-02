@@ -68,7 +68,7 @@ export const timelineEntries: TimelineEntry[] = [
   },
   {
     period: '2025.09 - 2026.08',
-    title: 'M.Eng. in Information Security · Beihang University · Incomplete',
+    title: 'Master\'s Program in Information Security · Beihang University · Incomplete',
     text: 'School of Cyber Science and Technology. Focused on systems security research.',
     category: 'Education',
   },
