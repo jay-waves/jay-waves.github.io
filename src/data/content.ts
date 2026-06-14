@@ -43,6 +43,12 @@ export type GitHubProfile = {
   label: string
 }
 
+export type BlogPost = {
+  title: string
+  href: string
+  date: string
+}
+
 export type SkillSegment = {
   text: string
   emphasis?: boolean
@@ -165,35 +171,22 @@ export const githubProfile: GitHubProfile = {
   label: '',
 }
 
-export const skills: SkillItem[] = [
-  {
-    key: 'lang-score',
-    segments: [
-      { text: 'IELTS 6.5 (6)', emphasis: true },
-    ],
-  },
-  {
-    key: 'stack',
-    segments: [
-      { text: 'C++20', emphasis: true },
-      { text: ' and ' },
-      { text: 'Python', emphasis: true },
-      { text: '; also C, Go, Shell, and TypeScript' },
-    ],
-  },
-  {
-    key: 'linux',
-    segments: [
-      { text: 'Strong ' },
-      { text: 'Linux', emphasis: true },
-      { text: ' development and deployment experience' },
-    ],
-  },
-  {
-    key: 'robotics',
-    segments: [
-      { text: 'Hands-on work with ' },
-      { text: 'ROS2 and teleoperation systems', emphasis: true },
-    ],
-  },
+export const blogIndexUrl = 'https://github.com/jay-waves/til/issues'
+
+export const blogPosts: BlogPost[] = [
+	{
+		title: '折腾网络代理的终极方案',
+		href: 'https://github.com/jay-waves/til/issues/17',
+		date: '2026-06-12',
+	},
+	{ 
+		title: '给自己做一个漂亮的 EPUB、PDF 阅读器',
+		href: 'https://github.com/jay-waves/til/issues/10',
+		date: '2026-05-01',
+	},
+	{ 
+		title: '深度精简 Windows11 系统',
+		href: 'https://github.com/jay-waves/til/issues/9',
+		date: '2026-05-01',
+	},
 ]

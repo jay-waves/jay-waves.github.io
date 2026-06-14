@@ -5,14 +5,6 @@ import { intro } from '../data/content'
 export function Hero() {
   const sectionRef = useRef<HTMLElement | null>(null)
   const [revealed, setRevealed] = useState(false)
-  const [asciiText, setAsciiText] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    fetch('/ascii-art.txt')
-      .then((r) => r.text())
-      .then(setAsciiText)
-      .catch(() => undefined)
-  }, [])
 
   useEffect(() => {
     const node = sectionRef.current
@@ -38,13 +30,12 @@ export function Hero() {
   return (
     <section
       id="panel-hero"
-      className="snap-panel grid min-h-[100svh] snap-start grid-cols-[minmax(320px,560px)_minmax(260px,440px)] items-center justify-center justify-items-center gap-[clamp(0.7rem,2vw,1.8rem)] p-[clamp(1.1rem,3vw,3rem)] max-[960px]:grid-cols-1 max-[960px]:content-center"
+      className="snap-panel grid min-h-[100svh] w-full snap-start grid-cols-[minmax(0,560px)_minmax(0,440px)] items-center justify-center justify-items-center gap-[clamp(0.7rem,2vw,1.8rem)] overflow-x-clip p-[clamp(1.1rem,3vw,3rem)] max-[760px]:grid-cols-1 max-[760px]:content-center"
       aria-label="Introduction"
       ref={sectionRef}
     >
-      <div className="hero-stage relative grid min-h-[min(72vh,760px)] place-items-center isolate max-[960px]:min-h-[48vh]" aria-hidden="true">
+      <div className="hero-stage relative grid min-w-0 w-full max-w-[560px] place-items-center isolate" aria-hidden="true">
         <AsciiImage
-          text={asciiText}
           src="/ascii-art.png"
           variant="hero"
           size="min(520px, 100%)"

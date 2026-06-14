@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import { githubProfile, contactItems, skills, type ContactItem } from '../data/content'
+import {
+  blogIndexUrl,
+  blogPosts,
+  contactItems,
+  githubProfile,
+  type ContactItem,
+} from '../data/content'
 import { BinaryDivider } from './binary-divider'
 
 export function GitHubContribution() {
@@ -65,39 +70,11 @@ function ContactIcon({ icon }: { icon: ContactItem['icon'] }) {
 }
 
 export function Bento() {
-  const [ascii, setAscii] = useState('')
-  const [fontSize, setFontSize] = useState(4)
-  const wrapRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    fetch('/ascii-art2.txt')
-      .then((r) => r.text())
-      .then(setAscii)
-      .catch(() => setAscii(''))
-  }, [])
-
-  useEffect(() => {
-    const wrap = wrapRef.current
-    if (!wrap || !ascii) return
-
-    const lines = ascii.replace(/\r/g, '').split('\n').filter((line, index, arr) => !(index === arr.length - 1 && line === ''))
-    const longest = Math.max(...lines.map((l) => l.length), 1)
-
-    const update = () => {
-      const w = wrap.clientWidth
-      const h = wrap.clientHeight
-      if (!w || !h) return
-
-      const sizeW = w / (longest * 0.62)
-      const sizeH = h / (lines.length * 1.05)
-      setFontSize(Math.max(2.4, Math.min(sizeW, sizeH, 8)))
-    }
-
-    requestAnimationFrame(update)
-    const ro = new ResizeObserver(update)
-    ro.observe(wrap)
-    return () => ro.disconnect()
-  }, [ascii])
+  const dateFormatter = new Intl.DateTimeFormat('en', {
+    year: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  })
 
   return (
     <section id="panel-bento" className="snap-panel snap-start min-h-[100svh] flex flex-col items-center p-[clamp(1.1rem,3vw,3rem)]">
@@ -106,84 +83,86 @@ export function Bento() {
         <BinaryDivider />
       </header>
 
-      <div className="grid w-full max-w-[1160px] grid-cols-1 gap-6 md:grid-cols-5">
+      <div className="grid w-full max-w-[1160px] grid-cols-1 gap-6 md:grid-cols-2">
+        <article className="bento-card card-contact">
+          <h3>Contact</h3>
 
-        {/* SKILLS */}
-        <article className="bento-card card-emotion md:col-span-2 flex flex-col overflow-hidden">
-          <h3 className="text-[1.22rem] tracking-[0.02em]">Skills</h3>
-
-          <ul className="relative z-10 mt-2 m-0 grid list-none content-start gap-2 p-0 text-sm leading-[1.5] text-[var(--text)]">
-            {skills.map((item) => (
-              <li key={item.key} className="flex items-start gap-2">
-                <span className="mt-1 h-[6px] w-[6px] rounded-full bg-[var(--accent)]" aria-hidden="true" />
-                <span>
-                  {item.segments.map((segment, index) => (
-                    <span
-                      key={`${item.key}-${index}`}
-                      className={segment.emphasis ? 'skill-emphasis' : undefined}
-                    >
-                      {segment.text}
+          <ul className="contact-list">
+            {contactItems.map((item) => (
+              <li key={item.label}>
+                {item.href ? (
+                  <a
+                    className="contact-link"
+                    href={item.href}
+                    target={item.href.startsWith('http') ? '_blank' : undefined}
+                    rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
+                  >
+                    <span className="contact-label-wrap">
+                      <ContactIcon icon={item.icon} />
+                      <span>{item.label}</span>
                     </span>
-                  ))}
-                </span>
+                    <span className="contact-value">{item.value}</span>
+                  </a>
+                ) : (
+                  <div className="contact-link is-static">
+                    <span className="contact-label-wrap">
+                      <ContactIcon icon={item.icon} />
+                      <span>{item.label}</span>
+                    </span>
+                    <span className="contact-value">{item.value}</span>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
-
-          <div
-            ref={wrapRef}
-            className="emotion-ascii-wrap mt-auto pointer-events-none opacity-40"
-          >
-            <pre className="emotion-ascii" style={{ fontSize }}>
-              {ascii}
-            </pre>
-          </div>
         </article>
 
-        {/* RIGHT: STACK */}
-        <div className="md:col-span-3 grid gap-6">
+        <article className="bento-card card-contribution" aria-label="GitHub contributions">
+          <GitHubContribution />
+        </article>
 
-          {/* CONTACT */}
-          <article className="bento-card card-contact">
-            <h3>Contact</h3>
+        <article className="bento-card card-blog md:col-span-2">
+          <div className="blog-card-header">
+            <h3>Blogs</h3>
 
-            <ul className="contact-list">
-              {contactItems.map((item) => (
-                <li key={item.label}>
-                  {item.href ? (
-                    <a
-                      className="contact-link"
-                      href={item.href}
-                      target={item.href.startsWith('http') ? '_blank' : undefined}
-                      rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
-                    >
-                      <span className="contact-label-wrap">
-                        <ContactIcon icon={item.icon} />
-                        <span>{item.label}</span>
-                      </span>
-                      <span className="contact-value">{item.value}</span>
-                    </a>
-                  ) : (
-                    <div className="contact-link is-static">
-                      <span className="contact-label-wrap">
-                        <ContactIcon icon={item.icon} />
-                        <span>{item.label}</span>
-                      </span>
-                      <span className="contact-value">{item.value}</span>
-                    </div>
-                  )}
+            <a
+              className="blog-all-link"
+              href={blogIndexUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              All posts
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          {blogPosts.length > 0 ? (
+            <ol className="blog-list">
+              {blogPosts.map((post) => (
+                <li key={post.href}>
+                  <a
+                    className="blog-post-link"
+                    href={post.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="blog-post-dot" aria-hidden="true" />
+                    <span className="blog-post-title">{post.title}</span>
+                    <time className="blog-post-date" dateTime={post.date}>
+                      {dateFormatter.format(new Date(`${post.date}T00:00:00Z`))}
+                    </time>
+                    <span className="blog-post-arrow" aria-hidden="true">↗</span>
+                  </a>
                 </li>
               ))}
-            </ul>
-          </article>
-
-          {/* CONTRIBUTION */}
-          <article className="bento-card card-contribution" aria-label="GitHub contributions">
-            <GitHubContribution />
-          </article>
-
-        </div>
-
+            </ol>
+          ) : (
+            <div className="blog-empty">
+              <span className="blog-empty-mark" aria-hidden="true">+</span>
+              <p>Add your first article in <code>src/data/content.ts</code></p>
+            </div>
+          )}
+        </article>
       </div>
     </section>
   )
