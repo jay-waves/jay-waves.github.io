@@ -12,6 +12,17 @@ body {
   line-height: 1.6;
 }
 
+html,
+.contributions {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+.contributions::-webkit-scrollbar {
+  display: none;
+}
+
 main {
   width: min(100% - 32px, 920px);
   margin: 0 auto;
@@ -173,6 +184,11 @@ header p:last-child {
 
   .hero {
     display: block;
+    transform: none;
+  }
+
+  .intro {
+    max-width: 100%;
   }
 
   .portrait {
