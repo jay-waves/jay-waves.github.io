@@ -45,7 +45,7 @@ h1 {
   display: grid;
   gap: 0.12em;
   width: fit-content;
-  font-size: clamp(2rem, 6.5vw, 3.2rem);
+  font-size: clamp(2rem, 6.5vw, 2.8rem);
   line-height: 1.05;
   letter-spacing: -0.04em;
 }
