@@ -43,7 +43,7 @@ section {
   padding: 0 0 34px;
   border-bottom: 1px solid #ddd;
   overflow: hidden;
-  transform: translateX(-64px);
+  transform: translateX(-58px);
 }
 
 h1,
@@ -116,7 +116,7 @@ header p:last-child {
   color: #111;
   font: 2.6px/1 ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.22px;
   white-space: pre;
 }
 
