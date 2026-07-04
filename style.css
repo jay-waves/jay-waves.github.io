@@ -96,7 +96,6 @@ header p:last-child {
 .portrait {
   order: 1;
   max-width: 100%;
-  max-height: 320px;
   margin: 0;
   overflow: hidden;
   color: #111;
@@ -168,7 +167,6 @@ header p:last-child {
 
   .portrait {
     margin-top: 24px;
-    max-height: 260px;
     font-size: 2px;
   }
 
