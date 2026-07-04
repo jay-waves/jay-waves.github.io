@@ -45,7 +45,7 @@ h1 {
   display: grid;
   gap: 0.12em;
   width: fit-content;
-  font-size: clamp(2rem, 6.5vw, 3.8rem);
+  font-size: clamp(2rem, 6.5vw, 3.2rem);
   line-height: 1.05;
   letter-spacing: -0.04em;
 }
@@ -99,9 +99,9 @@ header p:last-child {
   margin: 0;
   overflow: hidden;
   color: #111;
-  font: 2.9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas,
+  font: 2.6px/1 ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
-  letter-spacing: 0;
+  letter-spacing: 0.2px;
   white-space: pre;
 }
 
@@ -128,6 +128,12 @@ header p:last-child {
   display: grid;
   gap: 6px;
   margin-bottom: 24px;
+}
+
+.links li {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 12px;
 }
 
 .contributions {
