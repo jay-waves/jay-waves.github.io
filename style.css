@@ -32,6 +32,7 @@ section {
   padding: 0 0 34px;
   border-bottom: 1px solid #ddd;
   overflow: hidden;
+  transform: translateX(-64px);
 }
 
 h1,
@@ -43,11 +44,11 @@ p {
 
 h1 {
   display: grid;
-  gap: 0.12em;
+  gap: 0.25rem;
   width: fit-content;
-  font-size: clamp(2rem, 6.5vw, 2.8rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  font-size: clamp(2rem, 6.5vw, 2.4rem);
+  line-height: 1.4;
+  letter-spacing: -0.05em;
 }
 
 .name-cn {
@@ -85,12 +86,15 @@ a {
 
 
 .intro {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: start;
   order: 2;
   max-width: 420px;
 }
 
 header p:last-child {
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .portrait {
