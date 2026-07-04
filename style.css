@@ -6,8 +6,7 @@ body {
   margin: 0;
   background: #fff;
   color: #111;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
+  font-family: "Cagliostro", sans-serif;
   font-size: 16px;
   line-height: 1.6;
 }
@@ -36,14 +35,12 @@ section {
 
 .hero {
   display: grid;
-  grid-template-columns: max-content minmax(320px, 420px);
-  gap: 14px;
+  grid-template-columns: 150px minmax(0, 420px);
+  gap: 28px;
   justify-content: start;
   align-items: center;
   padding: 0 0 34px;
   border-bottom: 1px solid #ddd;
-  overflow: hidden;
-  transform: translateX(-58px);
 }
 
 h1,
@@ -110,14 +107,12 @@ header p:last-child {
 
 .portrait {
   order: 1;
-  max-width: 100%;
-  margin: 0;
-  overflow: hidden;
-  color: #111;
-  font: 2.6px/1 ui-monospace, SFMono-Regular, Menlo, Consolas,
-    "Liberation Mono", monospace;
-  letter-spacing: 0.22px;
-  white-space: pre;
+  width: 120px;
+  aspect-ratio: 3 / 4;
+  display: block;
+  border-radius: 18px;
+  object-fit: cover;
+  object-position: center;
 }
 
 .timeline,
@@ -176,15 +171,14 @@ header p:last-child {
   gap: 24px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 600px) {
   main {
     width: min(100% - 24px, 860px);
     padding-top: 40px;
   }
 
   .hero {
-    display: block;
-    transform: none;
+    grid-template-columns: 1fr;
   }
 
   .intro {
@@ -192,8 +186,7 @@ header p:last-child {
   }
 
   .portrait {
-    margin-top: 24px;
-    font-size: 2px;
+    margin-top: 0;
   }
 
   .timeline li,
