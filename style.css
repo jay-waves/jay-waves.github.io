@@ -82,6 +82,24 @@ time {
   color: #555;
 }
 
+.date {
+  display: inline-block;
+  width: 4em;
+}
+
+.date-range {
+  display: inline-grid;
+  grid-template-columns: 4em max-content 4em;
+  gap: 0.35em;
+  justify-content: start;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.date-range > span:nth-child(2) {
+  color: #999;
+}
+
 header p:last-child,
 section > p {
   max-width: 68ch;
@@ -161,8 +179,17 @@ header p:last-child {
 
 .posts {
   display: grid;
-  gap: 12px;
-  margin-top: 18px;
+  gap: 10px;
+}
+
+.post-year {
+  margin-bottom: 10px;
+  color: #555;
+  font-variant-numeric: tabular-nums;
+}
+
+.posts + .post-year {
+  margin-top: 24px;
 }
 
 .language-stats {
@@ -186,12 +213,6 @@ footer {
   font-size: 0.85rem;
 }
 
-.posts li {
-  display: grid;
-  grid-template-columns: 11rem 1fr;
-  gap: 24px;
-}
-
 @media (max-width: 600px) {
   main {
     width: min(100% - 24px, 860px);
@@ -210,8 +231,7 @@ footer {
     margin-top: 0;
   }
 
-  .timeline li,
-  .posts li {
+  .timeline li {
     display: block;
   }
 
