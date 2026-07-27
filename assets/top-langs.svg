@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="180" viewBox="0 0 480 180" role="img" aria-labelledby="title description">
+  <title id="title">GitHub language statistics</title>
+  <desc id="description">The statistics will be populated by GitHub Actions.</desc>
+  <rect width="480" height="180" rx="6" fill="#f6f8fa"/>
+  <text x="240" y="90" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="14" fill="#57606a">Language statistics will update shortly.</text>
+</svg>

@@ -1,0 +1,67 @@
+name: Update top languages
+
+on:
+  schedule:
+    # Every Sunday at 11:17 Beijing time (03:17 UTC).
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: update-top-langs
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Download and validate the language card
+        id: download
+        env:
+          CARD_URL: "https://github-stats-extended.vercel.app/api/top-langs?username=jay-waves&layout=compact&card_width=360&hide_title=true&langs_count=6&hide=CSS%2CTypst&hide_border=true&bg_color=00000000&title_color=111111&text_color=555555"
+        run: |
+          set -euo pipefail
+          temp_file="$RUNNER_TEMP/top-langs.svg"
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --location \
+            --retry 3 \
+            --max-time 60 \
+            "$CARD_URL" \
+            --output "$temp_file"
+
+          test -s "$temp_file"
+          grep --max-count=1 --quiet "<svg" "$temp_file"
+
+          if cmp --silent "$temp_file" assets/top-langs.svg; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            install -m 0644 "$temp_file" assets/top-langs.svg
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit the updated card
+        if: steps.download.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/top-langs.svg
+          git commit -m "chore: update top languages"
+          git push
+
+      - name: Request a Pages rebuild
+        if: steps.download.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
