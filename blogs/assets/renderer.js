@@ -178,14 +178,14 @@
                 html = self.renderToken(tokens, idx, options);
             }
             if (lineAttr) html = html.replace(/^<pre\b/, `<pre${lineAttr}`);
-            // Wrap in a non-scrolling container so the language/copy button
+            // Wrap in a non-scrolling container so the language label
             // stays pinned while the <pre> scrolls horizontally.
             // Emitted here rather than in a DOM pass so morphdom's virtual
             // tree matches the live tree and code blocks patch in place.
             const langMatch = html.match(/^<pre[^>]*\bdata-lang="([^"]*)"/);
-            const copyLabel = langMatch ? langMatch[1] : 'Copy';
-            return `<div class="code-wrap">${html}` +
-                `<button class="copy-btn" type="button" title="Copy code" data-copy-label="${copyLabel}">${copyLabel}</button></div>`;
+            const language = langMatch ? langMatch[1] : '';
+            const languageLabel = language ? `<span class="code-lang">${language}</span>` : '';
+            return `<div class="code-wrap">${html}${languageLabel}</div>`;
         };
 
         // ── Iconify auto-detection ────────────────────────────────────
@@ -326,23 +326,6 @@
 
         // ── Delegated content actions ─────────────────────────────────
         contentEl.addEventListener('click', async (e) => {
-            const copyBtn = e.target.closest('.copy-btn');
-            if (copyBtn) {
-                e.stopPropagation();
-                const code = copyBtn.closest('.code-wrap')?.querySelector('code');
-                if (!code) return;
-                try {
-                    await navigator.clipboard.writeText(code.textContent);
-                    copyBtn.textContent = 'Copied';
-                    copyBtn.classList.add('copied');
-                    setTimeout(() => {
-                        copyBtn.textContent = copyBtn.dataset.copyLabel || 'Copy';
-                        copyBtn.classList.remove('copied');
-                    }, 1500);
-                } catch (_) {}
-                return;
-            }
-
             const expandBtn = e.target.closest('[data-expand]');
             if (expandBtn) {
                 const blockId = expandBtn.dataset.expand;

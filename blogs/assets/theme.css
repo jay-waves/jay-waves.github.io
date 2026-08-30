@@ -324,11 +324,12 @@ html[data-theme="light"] {
 }
 
 #content blockquote {
-  margin: 0;
-  padding: 0 1em;
+  padding: .75rem 1rem;
   color: var(--md-muted);
-  background-color: var(--md-quote-bg);
-  border-left: .25em solid var(--md-border);
+  background-color: color-mix(in srgb, var(--md-bg) 98%, var(--md-muted));
+  border: 1px solid color-mix(in srgb, var(--md-border) 78%, transparent);
+  border-radius: 5px;
+  box-sizing: border-box;
 }
 
 #content ul,
@@ -400,6 +401,10 @@ html[data-theme="light"] {
 #content details {
   margin-top: 0;
   margin-bottom: 1rem;
+}
+
+#content blockquote {
+  margin: 1.25rem 0;
 }
 
 #content blockquote>:first-child {

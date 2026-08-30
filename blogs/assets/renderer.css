@@ -139,46 +139,33 @@
             }
         }
 
-        /* Non-scrolling wrapper around fenced code: keeps the copy button
-           pinned while the <pre> scrolls horizontally */
+        /* Non-scrolling wrapper around fenced code: keeps the language label
+           pinned while the <pre> scrolls horizontally. */
         #content .code-wrap {
             position: relative;
-            margin: 0 0 1em;
+            margin: 1.25rem 0;
         }
 
         #content .code-wrap pre {
             margin: 0;
+            border-radius: 5px;
         }
 
-        /* ── Language/copy button on code blocks ─────────────────────── */
-        #content .code-wrap .copy-btn {
+        /* ── Language label on code blocks ───────────────────────────── */
+        #content .code-wrap .code-lang {
             position: absolute;
             top: 0;
-            right: 0;
-            padding: .2em .6em;
+            right: .75rem;
+            padding: 0 .35rem;
             font-size: .68rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            color: var(--badge-fg);
-            background: var(--badge-bg);
-            border: 0;
-            border-bottom-left-radius: 6px;
-            border-top-right-radius: 7px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
+            font-family: "Fira Code", monospace;
+            color: var(--fg-muted);
+            background: var(--md-bg);
+            letter-spacing: .035em;
             font-weight: 500;
-            line-height: 1.4;
-            cursor: pointer;
-            transition: color .15s, background .15s;
+            line-height: 1.6;
+            transform: translateY(-50%);
             z-index: 2;
-        }
-
-        #content .code-wrap .copy-btn:hover {
-            color: var(--fg);
-            background: rgba(127, 127, 127, .15);
-        }
-
-        #content .code-wrap .copy-btn.copied {
-            color: #3fb950;
         }
 
         /* ── Mermaid diagrams ──────────────────────────────────────────── */
