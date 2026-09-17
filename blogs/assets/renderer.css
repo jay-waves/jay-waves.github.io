@@ -451,3 +451,81 @@
                 max-height: 95vh !important;
             }
         }
+
+        .preview-layout {
+            width: min(100%, 1680px);
+            min-height: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 900px) minmax(250px, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        #content {
+            grid-column: 2;
+            width: 100%;
+            justify-self: stretch;
+        }
+
+        #footnotes {
+            grid-column: 3;
+            width: 100%;
+            justify-self: stretch;
+        }
+
+        .toc-dialog {
+            width: min(480px, calc(100vw - 2rem));
+            max-height: min(70vh, 720px);
+            margin: auto;
+            padding: .8rem .85rem;
+            position: fixed;
+            inset: 0;
+            border: 1px solid #d1d9e0;
+            border-radius: 14px;
+            background: #fff;
+            color: #59636e;
+            font: .8rem/1.55 "Noto Sans", "Noto Sans CJK SC", system-ui, sans-serif;
+            letter-spacing: .015em;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, .16);
+        }
+
+        .toc-dialog::backdrop { background: rgba(0, 0, 0, .12); }
+        .toc-dialog:focus { outline: none; }
+        .toc-dialog nav, .toc-dialog ol { margin: 0; padding: 0; }
+        .toc-dialog ol { list-style: none; }
+        .toc-dialog li {
+            margin: .18rem 0;
+            padding-left: calc(.65rem + (var(--toc-level, 1) - 1) * 4ch);
+        }
+        .toc-dialog a {
+            display: block;
+            padding: .18rem .35rem;
+            color: inherit;
+            text-decoration: none;
+            transition: color .15s, transform .15s;
+        }
+        .toc-dialog a:hover,
+        .toc-dialog a:focus-visible,
+        .toc-dialog a.is-active {
+            color: #292929;
+            background: transparent;
+            transform: translateX(.15rem);
+        }
+        .toc-dialog a.is-active {
+            text-decoration: underline;
+            text-decoration-color: #59636e;
+            text-underline-offset: .2em;
+        }
+        body.toc-open { overflow: hidden; }
+
+        @media (max-width: 1100px) {
+            .preview-layout { grid-template-columns: minmax(0, 1fr) minmax(170px, 220px); gap: .75rem; }
+            #content { grid-column: 1; }
+            #footnotes { grid-column: 2; }
+        }
+        @media (max-width: 768px) {
+            .preview-layout { display: block; }
+            #content, #footnotes { grid-column: auto; width: auto; }
+            #footnotes { padding: 1rem; }
+        }

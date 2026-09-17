@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it-texmath@1.0.0/css/texmath.css">
   <link rel="stylesheet" href="../assets/renderer.css?v=18">
-  <link rel="stylesheet" href="../assets/theme.css?v=12">
+  <link rel="stylesheet" href="../assets/theme.css?v=14">
   <link rel="stylesheet" href="../assets/highlight.css?v=5">
 </head>
 <body>
@@ -19,7 +19,8 @@
     <div class="skeleton-line"></div><div class="skeleton-line"></div>
     <div class="skeleton-line"></div>
   </div>
-  <main id="content" style="display:none"></main>
+  <div class="preview-layout"><main id="content" style="display:none"></main><aside id="footnotes" aria-label="Footnotes"></aside></div>
+  <dialog id="toc-dialog" class="toc-dialog" aria-label="Table of contents" tabindex="-1"><nav aria-label="文档目录"></nav></dialog>
   <dialog id="overlay" aria-label="展开的 Mermaid 图表">
     <div id="overlay-actions">
       <button id="ovExport" class="btn" title="导出 SVG" aria-label="导出 SVG">
@@ -41,6 +42,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.6.2/dist/panzoom.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/markdown-it-texmath@1.0.0/texmath.js"></script>
+  <script src="../assets/toc.js?v=1"></script>
   <script type="module" src="../assets/renderer.js?v=5"></script>
   <script type="module" src="../assets/blog.js?v=10"></script>
   <noscript><p>阅读文章需要启用 JavaScript。</p></noscript>
