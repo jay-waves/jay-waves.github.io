@@ -12,21 +12,21 @@
   <link rel="stylesheet" href="../assets/highlight.css?v=5">
 </head>
 <body>
-  <div id="loadingSkeleton" class="skeleton" aria-label="正在加载文章">
+  <div id="loadingSkeleton" class="skeleton" aria-label="Loading article">
     <div class="skeleton-line"></div><div class="skeleton-line"></div>
     <div class="skeleton-line"></div><div class="skeleton-line"></div>
     <div class="skeleton-line"></div><div class="skeleton-line"></div>
     <div class="skeleton-line"></div><div class="skeleton-line"></div>
     <div class="skeleton-line"></div>
   </div>
-  <div class="preview-layout"><main id="content" style="display:none"></main><aside id="footnotes" aria-label="Footnotes"></aside></div>
-  <dialog id="toc-dialog" class="toc-dialog" aria-label="Table of contents" tabindex="-1"><nav aria-label="文档目录"></nav></dialog>
-  <dialog id="overlay" aria-label="展开的 Mermaid 图表">
+  <div class="preview-layout"><aside id="toc-trigger" role="button" tabindex="0" aria-label="Open table of contents"></aside><main id="content" style="display:none"></main><aside id="footnotes" aria-label="Footnotes"></aside></div>
+  <dialog id="toc-dialog" class="toc-dialog" aria-label="Table of contents" tabindex="-1"><nav aria-label="Table of contents"></nav></dialog>
+  <dialog id="overlay" aria-label="Expanded Mermaid diagram">
     <div id="overlay-actions">
-      <button id="ovExport" class="btn" title="导出 SVG" aria-label="导出 SVG">
+      <button id="ovExport" class="btn" title="Export SVG" aria-label="Export SVG">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <button id="ovClose" class="btn" title="关闭 (Esc)" aria-label="关闭">
+      <button id="ovClose" class="btn" title="Close (Esc)" aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>

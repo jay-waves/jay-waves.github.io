@@ -189,6 +189,7 @@
     };
 
     const tocDialog = document.getElementById('toc-dialog');
+    const tocTrigger = document.getElementById('toc-trigger');
     const openToc = () => {
         if (!tocDialog) return;
         tocDialog.showModal();
@@ -200,6 +201,28 @@
             link?.scrollIntoView({ block: 'center', behavior: 'auto' });
         }
     };
+    let triggerPointerStart = null;
+    tocTrigger?.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+        triggerPointerStart = { x: event.clientX, y: event.clientY };
+    });
+    tocTrigger?.addEventListener('pointerup', event => {
+        if (event.button !== 0 || !triggerPointerStart) return;
+        const moved = Math.hypot(
+            event.clientX - triggerPointerStart.x,
+            event.clientY - triggerPointerStart.y,
+        );
+        triggerPointerStart = null;
+        if (moved <= 6) openToc();
+    });
+    tocTrigger?.addEventListener('pointercancel', () => {
+        triggerPointerStart = null;
+    });
+    tocTrigger?.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openToc();
+    });
     tocDialog?.addEventListener('click', event => {
         const rect = tocDialog.getBoundingClientRect();
         const outside = event.clientX < rect.left || event.clientX > rect.right
@@ -208,14 +231,6 @@
         if (event.target.closest('a')) tocDialog.close();
     });
     tocDialog?.addEventListener('close', () => document.body.classList.remove('toc-open'));
-    window.addEventListener('keydown', event => {
-        if (event.key.toLowerCase() !== 't' || event.ctrlKey || event.metaKey || event.altKey) return;
-        const target = event.target;
-        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
-            || target.isContentEditable) return;
-        event.preventDefault();
-        if (!tocDialog?.open) openToc();
-    });
 
     if (getContentElement()) {
         let activeUpdateFrame = 0;
