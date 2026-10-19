@@ -26,7 +26,7 @@ jobs:
       - name: Download and validate the language card
         id: download
         env:
-          CARD_URL: "https://github-stats-extended.vercel.app/api/top-langs?username=jay-waves&layout=compact&card_width=360&hide_title=true&langs_count=6&hide=CSS%2CTypst&hide_border=true&bg_color=00000000&title_color=111111&text_color=555555"
+          CARD_URL: "https://github-stats-extended.vercel.app/api/top-langs?username=jay-waves&layout=compact&card_width=360&hide_title=true&langs_count=6&hide=CSS%2CTypst%2CHTML&hide_border=true&bg_color=00000000&title_color=111111&text_color=555555"
         run: |
           set -euo pipefail
           temp_file="$RUNNER_TEMP/top-langs.svg"

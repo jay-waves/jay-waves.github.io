@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Yu, Jia-Wei · Blog</title>
+    <link>https://jay-waves.cn/</link>
+    <description>Articles by Yu, Jia-Wei on robotics, networks, and software tools. Subscribe for summaries and follow the links to read the full articles.</description>
+    <language>en</language>
+    <atom:link href="https://jay-waves.cn/feed.xml" rel="self" type="application/rss+xml" />
+    <!-- New articles go first. Keep each guid unchanged; add pubDate only when the publication date is known. -->
+    <item>
+      <title>Real-Time Control and Network Architecture for Brushless Servo Motors</title>
+      <link>https://jay-waves.cn/blogs/multi-channel-servo-motors/index.html</link>
+      <guid isPermaLink="true">https://jay-waves.cn/blogs/multi-channel-servo-motors/index.html</guid>
+      <description>Software and network design tradeoffs for real-time control of multiple servo motors, covering network topology, command and status interfaces, communication latency, and control algorithms. This article is a work in progress.</description>
+    </item>
+    <item>
+      <title>Network Security Architecture and End-Devices Topology</title>
+      <link>https://jay-waves.cn/blogs/network-topology/index.html</link>
+      <guid isPermaLink="true">https://jay-waves.cn/blogs/network-topology/index.html</guid>
+      <description>An overview of Access-Aggregation-Core and Leaf-Spine topologies, comparing their approaches to north-south and east-west traffic and discussing redundancy for firewalls and core switches.</description>
+    </item>
+    <item>
+      <title>The Ultimate Setup for Mihomo Network Proxies without GUI</title>
+      <link>https://jay-waves.cn/blogs/network-proxy/index.html</link>
+      <guid isPermaLink="true">https://jay-waves.cn/blogs/network-proxy/index.html</guid>
+      <description>A practical guide to configuring and running Mihomo directly, covering network proxy concepts, configuration, and the reasons for moving from graphical clients to command-line tools.</description>
+    </item>
+    <item>
+      <title>I Think Browser Should Serve As a EPUB and PDF Reader</title>
+      <link>https://jay-waves.cn/blogs/epub-and-pdf-reader/index.html</link>
+      <guid isPermaLink="true">https://jay-waves.cn/blogs/epub-and-pdf-reader/index.html</guid>
+      <description>Introducing pdf.ts and epub.ts, two readers designed for a browser-based workflow, with lightweight interfaces, annotations, and ebook styling, alongside comparisons with existing readers.</description>
+    </item>
+    <item>
+      <title>Deep-Debloating Windows 11</title>
+      <link>https://jay-waves.cn/blogs/deep-defloat-win11/index.html</link>
+      <guid isPermaLink="true">https://jay-waves.cn/blogs/deep-defloat-win11/index.html</guid>
+      <description>Personal notes on trimming Windows 11, covering preinstalled software, AI components, search indexing, and browser components, along with alternative tools.</description>
+    </item>
+  </channel>
+</rss>
