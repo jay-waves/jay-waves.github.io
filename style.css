@@ -41,6 +41,11 @@ section {
   border-bottom: 1px solid #ddd;
 }
 
+main > section:last-of-type {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
 .hero {
   display: grid;
   grid-template-columns: 150px minmax(0, 420px);
@@ -246,10 +251,8 @@ header p:last-child {
 }
 
 footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 24px;
+  text-align: left;
+  padding-top: 12px;
   color: #777;
   font-size: 0.8rem;
 }
