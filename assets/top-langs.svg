@@ -83,7 +83,7 @@
       }
     
           
-        </style>
+        * { animation: none !important; } .stagger { opacity: 1 !important; }</style>
 
         
         <defs>

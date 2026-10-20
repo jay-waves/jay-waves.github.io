@@ -41,6 +41,9 @@ jobs:
           curl --fail --silent --show-error --location --retry 3 --max-time 60 \
             "$CONTRIBUTION_CHART_URL" --output "$contribution_chart"
 
+          # Render statically, including text that the original animation reveals.
+          sed -i 's#</style>#* { animation: none !important; } .stagger { opacity: 1 !important; }</style>#' "$language_card"
+
           test -s "$language_card"
           grep --max-count=1 --quiet "<svg" "$language_card"
           test -s "$contribution_chart"
