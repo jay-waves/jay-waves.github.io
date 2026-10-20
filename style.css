@@ -246,6 +246,9 @@ header p:last-child {
 }
 
 footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding-top: 24px;
   color: #777;
   font-size: 0.85rem;
