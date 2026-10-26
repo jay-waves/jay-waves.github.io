@@ -3,84 +3,84 @@
 #import theme: template, sidenote, theorem
 #show: template
 
-= 给自己做一个漂亮的 EPUB、PDF 阅读器
-我总苦于找不到好用的 PDF、EPUB 阅读器。
+= Building a Better EPUB and PDF Reader
+I have always struggled to find a PDF or EPUB reader that I actually enjoy using.
 
-- Adobe Acrobat 功能很全，界面现代。但不免费，也不轻量。我就看看书，用不到大多数功能。
-- Stirling PDF 类似 Acrobat， 不过相对免费。也不轻量。
-- Sumatra PDF 很快很轻量，但是丑。
-- Readest 很美观，开源，但是正在迅速变得臃肿（很多无用功能）
+- Adobe Acrobat is feature-rich and has a modern interface, but it is neither free nor lightweight. I only read books and do not need most of its features.
+- Stirling PDF is similar to Acrobat and relatively free, but it is not lightweight either.
+- Sumatra PDF is fast and lightweight, but ugly.
+- Readest looks good and is open source, but it is quickly becoming bloated with unnecessary features.
 
-#strong[我的工作流已经深入嵌入到浏览器中了，浏览器的历史、书签我都频繁使用，还是希望直接用浏览器浏览 PDF 和电子书]。
+#strong[My workflow is already deeply integrated with the browser. I use its history and bookmarks all the time, so I would like to read PDFs and ebooks directly in the browser.]
 
 == pdf.ts
-基于 #link("https://github.com/embedpdf/embed-pdf-viewer")[embedPDF] 的浏览器插件。直接拦截 `file://*.pdf` 或 `https://*.pdf` URL，重定向到本插件的页面进行浏览。
+A browser extension based on #link("https://github.com/embedpdf/embed-pdf-viewer")[embedPDF]. It intercepts `file://*.pdf` and `https://*.pdf` URLs and redirects them to the extension's viewer.
 
-- 支持 BMP 高速渲染，同时减少内存消耗。对标 MS-Edge PDF 的性能和空间效率。
-- 美观、极简、最小化干扰的UI界面，专注阅读，同时支持标注、评论。
+- Supports fast BMP rendering while reducing memory use, with performance and memory efficiency comparable to the Microsoft Edge PDF viewer.
+- A clean, minimalist interface with few distractions, focused on reading while still supporting annotations and comments.
 
 #align(center, image("./img1.webp", width: 100%))
 
-#strong[详细信息和代码开源在 #link("https://github.com/jay-waves/pdf.ts")[jay-waves/pdf.ts]]
+#strong[More details and source code: #link("https://github.com/jay-waves/pdf.ts")[jay-waves/pdf.ts]]
 
 == epub.ts
-基于 #link("https://github.com/johnfactotum/foliate-js")[foliate-js] 的 Chrome 浏览器插件，拦截 `file://*.epub` 和 `https://*.epub`，重定向到插件页面打开阅读。
+A Chrome extension based on #link("https://github.com/johnfactotum/foliate-js")[foliate-js]. It intercepts `file://*.epub` and `https://*.epub` URLs and redirects them to the extension's reader.
 
-- 深入适配和美化各种 epub 样式，多主题，可定制。
-- 极简、最小化干扰的阅读界面，同时也支持高亮、标注、翻译。
-- 不依赖浏览器存储，高亮等编辑信息直接写入原文件。
+- Carefully adapts and styles a wide range of EPUB layouts, with customizable themes.
+- A minimalist reading interface with few distractions, plus support for highlights, annotations, and translation.
+- Does not rely on browser storage; highlights and other edits are written directly to the original file.
 
 #align(center, image("./img2.webp", width: 100%))
 
-#strong[详细信息和代码开源在 #link("https://github.com/jay-waves/epub.ts")[jay-waves/epub.ts]]
+#strong[More details and source code: #link("https://github.com/jay-waves/epub.ts")[jay-waves/epub.ts]]
 
-== 竞品对比
-=== ChromePDF
-Google 的审美虽然风格统一，但真不好看呀…… 上面的工具栏刘海那么宽。
+== Comparing Other Readers
+=== Chrome PDF Viewer
+Google's design is consistent, but I do not find it attractive... The toolbar at the top is much too tall.
 
 #align(center, image("./img3.webp", width: 100%))
 
-=== Adobe Arobat
-承认它功能强大，但是大部分 PDF 编辑功能似乎在日常阅读时都用不到。
+=== Adobe Acrobat
+It is powerful, but most of its PDF editing features seem unnecessary for everyday reading.
 
 #align(center, image("./img4.webp", width: 100%))
 
 === SumatraPDF for EPUB
-Win7 的画风。确实轻量，确实极客。
+It has a Windows 7 look. It is lightweight and certainly has a geeky feel.
 
 #align(center, image("./img5.webp", width: 100%))
 
-=== Readest for EPUB:
-个人认为还是很美观的，就是近期更新总是塞不合理的功能。而且呢，Web 端不能直接拦截 `file://` URL，必须手动导入文件，再进行阅读。
+=== Readest for EPUB
+I think it looks quite good, but recent updates keep adding features that do not make sense to me. Also, the web version cannot intercept `file://` URLs directly, so you have to import files manually before reading them.
 
 #align(center, image("./img6.webp", width: 100%))
 
-== 跨平台化
-Web 应用运行在浏览器的受控沙箱，行为受浏览器控制和安全审查。因此，Web 应用走向本地化（Windows、Linux Apps），最难做的是扩展对本地系统的访问边界。Web 应用难以获取文件系统的权限，难以做进程控制，更难做系统的集成（文件关联、自启动等）。
+== Supporting Multiple Platforms
+Web apps run in a controlled browser sandbox, where the browser governs and checks their behavior. When turning a web app into a local Windows or Linux app, the hardest part is extending its access to the local system. Web apps have limited access to the filesystem, process control, and system integration such as file associations and startup tasks.
 
-以浏览器 File System Access API 为例，要获取对文件的读取权限，必须要弹出文件选择窗，让用户选择并点击允许。要获取对文件的写入权限，Chromium 系浏览器需要弹窗，让用户选择原文件并点击允许，后续写入会覆盖原文件；Safari/WebKit 或 Firefox 浏览器则仍不支持获取本地文件的可写句柄，只能下载（固定的下载目录）。
+Take the browser File System Access API as an example. To read a file, the app must open a file picker and ask the user to select it and grant permission. To write to a file, Chromium-based browsers show a dialog asking the user to select the original file and grant permission; subsequent writes overwrite that file. Safari/WebKit and Firefox still do not support writable handles to local files, so they can only download a copy to a fixed download directory.
 
-也就是说，不光是访问权限受限制，不同浏览器间的接口和提供的能力也不同。跨端维护非常麻烦。
+In other words, access is restricted, and browser APIs and capabilities also differ. Maintaining the app across browsers is difficult.
 
-常见的解决办法有三种：
+There are three common approaches:
 
-+ 套浏览器壳（Electron、Tauri），应用内置一个浏览器环境（或 WebView），获取大部分系统级权限。
-+ 远程化。用户数据上传到远程服务器，或复制到浏览器沙盒内的本地存储。但不存储在用户自己的目录。
-+ 本地代理。在用户本地运行一个有权限的后台进程，Web 应用通过 localhost API 向它发起请求，有它代理完成操作。
++ Use a browser shell such as Electron or Tauri. The app bundles a browser environment (or WebView) and gains most system-level permissions.
++ Move operations to a remote service. User data is uploaded to a server or copied into the browser sandbox's local storage, rather than kept in the user's own directory.
++ Use a local agent. A privileged background process runs on the user's computer; the web app sends it requests through a localhost API, and the agent performs the operations.
 
-下面介绍我在跨端时的设计选择：
+Here are the design choices I made for each platform:
 
-=== Chrome 插件
-用户打开 `*.pdf, *.epub` 文件时，浏览器打开 `file://` URI，插件监听这个动作，然后劫持并重定向到插件的浏览界面。
+=== Chrome Extension
+When a user opens a `*.pdf` or `*.epub` file, the browser opens its `file://` URI. The extension listens for this and redirects the file to its own viewer.
 
-用户修改文件后，需要写入时，弹出弹窗，让用户选择写入位置。当用户选择原文件位置时，就是原地覆盖写入。
+When the user edits a file and needs to save it, a dialog asks where to write it. Choosing the original file overwrites it in place.
 
-=== Web 应用
-打开 `jay-waves.cn/epub.ts` 后，展示 Welcome 界面，用户选择或拖拽文件来打开浏览界面。因为是用户的主动动作， Chrome 系浏览器允许同时获取读/写权限。
+=== Web App
+When the user opens `jay-waves.cn/epub.ts`, a welcome screen appears. The user selects or drops a file to open it in the reader. Because this follows a direct user action, Chromium-based browsers allow the app to request both read and write access.
 
-用户修改文件后，需要写入时，Safari 或 Firefox 浏览器会直接触发下载，Chrome 浏览器则会直接写回原文件。
+When the user edits a file and saves it, Safari or Firefox triggers a download, while Chrome writes the changes back to the original file.
 
-=== Windows 桌面应用
-用 Go 为桌面端写了一个小 Launcher，可以作为（不会自动作为）一个后台服务运行。以 `pdf.ts.exe` 为例，`exe` 内置嵌入了所有的 Web 应用资源，并注册自身为 pdf 文件打开方式。
+=== Windows Desktop App
+I wrote a small Go launcher for the desktop app. It can run as a background service, though it does not do so automatically. For example, `pdf.ts.exe` embeds all the web app's resources and registers itself as a PDF file handler.
 
-点击一个 pdf 后，web 应用资源被临时解压，跳转到浏览器内打开。后续用户修改文件后，需要写入时，Web 应用直接通过本地网络通信，和正在监听的 `pdf.ts.exe` 通信，由它代理进行文件编辑写入。
+When a PDF is opened, the web app's resources are temporarily extracted and opened in the browser. When the user later saves changes, the web app communicates over the local network with the listening `pdf.ts.exe`, which performs the file write on its behalf.

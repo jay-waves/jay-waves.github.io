@@ -4,21 +4,21 @@
 
 #show: template
 
-= 多路伺服电机的通信架构与实时控制
+= Communication Architecture and Real-Time Control for Multi-Channel Servo Motors
 
-本文主要介绍如何实时控制多路电机，主要关注软件与网络设计权衡，包含如下内容：
+This article describes how to control multiple motors in real time, focusing on software and network design trade-offs. It covers:
 
-- 网络拓扑设计
-- 设备控制与状态接口设计
-- 网络通信的实时性优化
-- 少量控制算法相关
+- Network topology
+- Device control and state interfaces
+- Real-time network communication optimizations
+- A few aspects of control algorithms
 
-目前该文档只是对代码的文档式总结，尚未完成。
+This document is currently an incomplete, code-oriented summary of the implementation.
 
-== 最小控制接口
-公共控制接口不暴露网关、CAN 总线和协议帧。上层控制器只提交目标量；runtime 根据初始化时建立的绑定关系完成逻辑设备到物理电机的映射。
+== Minimal Control Interface
+The public control interface does not expose gateways, CAN buses, or protocol frames. Higher-level controllers submit targets only; the runtime maps logical devices to physical motors using the bindings established during initialization.
 
-电机协议对上层暴露的最小控制面由三类命令组成：位置、速度和力矩。三者均以 `device_id_t` 标识逻辑设备；运行时再将逻辑设备映射到具体 channel、CAN port 和 CAN id。
+The motor protocol exposes a minimal control surface to higher layers through three commands: position, velocity, and torque. Each uses `device_id_t` to identify a logical device; at runtime, the logical device is mapped to a specific channel, CAN port, and CAN ID.
 
 ```cpp
 struct position_command {
@@ -43,10 +43,10 @@ struct torque_command {
 };
 ```
 
-其中 `position_deg` 为位置参考，单位 degree；`velocity_rpm` 为速度参考，单位 rpm；`torque_nm` 为力矩参考，单位 N·m。位置和速度命令携带限幅参数，作为主控侧给定量进入电机侧控制器前的约束。
+Here, `position_deg` is the position reference in degrees, `velocity_rpm` is the velocity reference in rpm, and `torque_nm` is the torque reference in N·m. Position and velocity commands carry limit parameters that constrain setpoints from the host before they reach the motor controller.
 
-=== 状态采样
-反馈接口采用缓存采样模型。状态接口不主动查询设备，只返回驱动最近一次解析并应用的采样值。
+=== State Sampling
+The feedback interface uses a cached-sample model. The state interface does not actively query devices; it returns the latest sample parsed and applied by the driver.
 
 ```cpp
 template <typename T> struct sample_t {
@@ -56,11 +56,11 @@ template <typename T> struct sample_t {
 };
 ```
 
-`sample_t` 表示一次已缓存的设备状态采样。`seq != 0` 表示该字段至少更新过一次；`time` 是驱动接收并应用该字段的时间戳。控制循环必须根据 `fresh(now, max_age)` 判断数据是否过期。
+`sample_t` represents a cached device-state sample. `seq != 0` means the field has been updated at least once; `time` is the timestamp when the driver received and applied the field. The control loop must use `fresh(now, max_age)` to determine whether the data is stale.
 
-该模型保留两个必要信息。首先，`seq == 0` 区分“未收到过采样”和“采样值为零”。其次，新鲜度阈值不在驱动层固定。运动反馈、温度、电机版本和 UUID 的有效期不同，过期策略应由控制器按字段和任务定义。
+This model preserves two essential pieces of information. First, `seq == 0` distinguishes “no sample received” from “the sample value is zero.” Second, the freshness threshold is not fixed in the driver. Motion feedback, temperature, motor version, and UUID have different validity periods, so the controller should define staleness policies by field and task.
 
-最小反馈接口为：
+The minimal feedback interface is:
 
 ```cpp
 class motor_interface : public fleet::device_interface {
@@ -72,42 +72,42 @@ public:
 };
 ```
 
-=== 电机控制的典型三环结构
-我们默认采用“电机 MCU 内闭环、主控侧轨迹/命令生成”的分层结构：
+=== Typical Three-Loop Motor Control
+We assume a layered design in which the motor MCU closes the control loops while the host generates trajectories and commands:
 
-+ 电流环：位于电机 MCU 内部，通常为最高频内环。
-+ 速度环：位于电机 MCU 内部，接受速度目标或 PVT 速度分量。
-+ 位置环：位于电机 MCU 内部，接受位置目标或 PVT 位置分量。
++ Current loop: runs on the motor MCU and is usually the highest-frequency inner loop.
++ Velocity loop: runs on the motor MCU and accepts a velocity target or the velocity component of a PVT command.
++ Position loop: runs on the motor MCU and accepts a position target or the position component of a PVT command.
 
-主控侧不直接实现电机三环控制器，而是周期性发送位置、速度、力矩或 PVT 参考量，并异步接收反馈。电流内环不适合跨越 UDP、CAN、操作系统调度和用户态控制循环实现；主控侧应承担轨迹生成、约束管理和外环监督。
+The host does not implement the motor's three control loops directly. Instead, it periodically sends position, velocity, torque, or PVT references and receives feedback asynchronously. The current loop should not span UDP, CAN, operating-system scheduling, and a user-space control loop; the host should handle trajectory generation, constraint management, and outer-loop supervision.
 
-因此，主控侧控制周期必须显著慢于电机内环。反馈新鲜度是控制律输入有效性的一部分，必须由上层控制器显式检查。
+The host control period must therefore be significantly slower than the motor's inner loops. Feedback freshness is part of input validity for the control law and must be checked explicitly by the higher-level controller.
 
-=== 控制循环
-推荐的控制层级如下：
+=== Control Loop
+The recommended control hierarchy is:
 
 #figure(
   align(center)[#table(
     columns: 3,
     align: (auto,auto,auto,),
-    table.header([控制周期], [频率], [位置],),
+    table.header([Control Period], [Frequency], [Location],),
     table.hline(),
-    [电机三环驱动], [1 kHz 或更高], [电机 MCU 内],
-    [PVT 控制、单关节控制], [500 Hz], [主控控制驱动],
-    [目标规划], [10 Hz], [上层规划器],
+    [Motor control loops], [1 kHz or higher], [On motor MCU],
+    [PVT and single-joint control], [500 Hz], [Host controller],
+    [Target planning], [10 Hz], [High-level planner],
   )]
   , kind: table
   )
 
-在主控侧，控制循环应满足：
+On the host, the control loop should:
 
-+ 每周期只读取 `sample_t` 快照，不在设备锁内执行控制计算。
-+ 使用 `fresh(now, max_age)` 严格判断反馈有效性。
-+ 周期落后时优先丢弃旧控制命令，而不是补发过期命令。
-+ 批量发送同类型命令，以获得 UDP 聚合收益。
-+ 将配置查询和周期控制分离，避免慢速配置请求污染高频控制队列。
++ Read only `sample_t` snapshots each cycle; do not run control calculations while holding a device lock.
++ Use `fresh(now, max_age)` to check feedback validity strictly.
++ If the loop falls behind, discard stale control commands instead of sending them late.
++ Batch commands of the same type to benefit from UDP aggregation.
++ Separate configuration queries from periodic control so slow requests do not interfere with the high-frequency control queue.
 
-一个典型 500 Hz 主控循环可以组织为：
+A typical 500 Hz host loop can be structured as follows:
 
 ```text
 loop every 2 ms:
@@ -119,14 +119,14 @@ loop every 2 ms:
     command(span<const pvt_command>)
 ```
 
-该循环模型中，控制器读取状态快照并提交最新参考量，中间不同步等待设备回复。稳定性评估应关注尾延迟、反馈过期和旧包积压，而非仅观察平均延迟。
+In this loop, the controller reads state snapshots and submits the latest references without waiting synchronously for device responses. Stability evaluations should focus on tail latency, stale feedback, and backlogs of old packets—not just average latency.
 
-== 架构设计（对象模型）
-=== 网络拓扑
-目标拓扑为 32 个电机、2 个 MCU 网关、4 条 CAN 总线：
+== Architecture (Object Model)
+=== Network Topology
+The target topology has 32 motors, two MCU gateways, and four CAN buses:
 
 ```text
-主控
+Host controller
   |
   +-- UDP channel 0 -> MCU gateway 0
   |       +-- CAN0 -> 8 motors
@@ -137,15 +137,15 @@ loop every 2 ms:
           +-- CAN1 -> 8 motors
 ```
 
-在 `fleet_config` 中，一个 `channel_config` 对应一个 UDP 网关连接；一个 `motor_config` 对应一个逻辑电机。电机配置包含：
+In `fleet_config`, each `channel_config` represents a UDP gateway connection, and each `motor_config` represents a logical motor. A motor configuration contains:
 
 ```cpp
 name, channel, model, can_port, can_id
 ```
 
-拓扑复杂性在初始化阶段收敛。控制循环不依赖网关编号、CAN 总线编号或 CAN ID；它只持有 `device_id` 或 `motor_interface` 指针。配置错误在 `init()` 阶段暴露，避免在周期控制路径中形成运行时路由不确定性。
+Topology complexity is resolved during initialization. The control loop does not depend on gateway numbers, CAN bus numbers, or CAN IDs; it holds only a `device_id` or a `motor_interface` pointer. Configuration errors surface during `init()`, avoiding runtime routing uncertainty in the periodic control path.
 
-=== 设备接口与驱动设计
+=== Device Interface and Driver Design
 ```text
                    command
   user/controller ---------> runtime ---------> motor_driver ---------> channel
@@ -155,47 +155,47 @@ name, channel, model, can_port, can_id
   motor_interface ----------------------> motor_device
 ```
 
-`runtime` 负责生命周期、配置校验和命令分发。`motor_driver` 负责 ENCOS CAN-over-UDP 协议编码、发送、接收、路由和反馈解析。`motor_device` 持有设备状态缓存。`motor_interface` 是对外只读接口，避免上层直接接触驱动内部状态。
+`runtime` handles lifecycle management, configuration validation, and command dispatch. `motor_driver` handles ENCOS CAN-over-UDP protocol encoding, transmission, reception, routing, and feedback parsing. `motor_device` owns the device-state cache. `motor_interface` is a read-only public interface that keeps higher layers away from driver internals.
 
-`motor_device` 是状态拥有者，`motor_interface` 是外部观察者。上层代码通过接口读取状态；状态写入只允许从 driver 接收路径进入。该约束使设备状态的写入来源唯一化，有利于审查反馈路径和并发语义。
+`motor_device` owns the state, while `motor_interface` observes it. Higher-level code reads state through the interface; state can only be written through the driver's receive path. This gives device state a single write path, making feedback flow and concurrency semantics easier to review.
 
-逻辑设备 ID 是 `runtime` 初始化时按 `motors` 配置顺序分配的连续整数。发送命令时，运行时先用 `device_id` 查到 `(driver_slot, device_slot)`，再由对应 driver 将命令编码为 CAN 帧。
+Logical device IDs are consecutive integers assigned at runtime initialization in the order of the `motors` configuration. When sending a command, the runtime uses `device_id` to find `(driver_slot, device_slot)`, then the corresponding driver encodes the command as a CAN frame.
 
-接收路径采用反向路由表：
+The receive path uses a reverse routing table:
 
 ```text
 motor_routes_[can_port][can_id] -> motor_device
 ```
 
-反馈帧到达后可按 CAN port 和 CAN id 直接定位设备，不需要线性扫描全部电机。对 32 电机拓扑而言，该路径主要降低接收线程尾延迟，并使路由成本与设备总数解耦。
+When a feedback frame arrives, its CAN port and CAN ID identify the device directly, without a linear scan of all motors. For a 32-motor topology, this primarily reduces receive-thread tail latency and decouples routing cost from the number of devices.
 
-=== 线程与对象模型
-实时 UDP 通道使用两个后台线程：
+=== Thread and Object Model
+The real-time UDP channel uses two background threads:
 
 ```text
 TX thread: pending queue -> token bucket -> UDP send
 RX thread: UDP receive -> callback -> driver decode -> device apply
 ```
 
-TX 线程负责发送队列消费、带宽限流和 UDP 发送重试。RX 线程负责非阻塞接收，并在接收线程内调用 driver 回调。普通 `udp_channel` 还有一个单线程实现，但电机驱动使用的是 `realtime_udp_channel`。
+The TX thread consumes the send queue, enforces bandwidth limits, and retries UDP sends. The RX thread performs non-blocking receives and invokes the driver callback on the receive thread. A regular single-threaded `udp_channel` implementation also exists, but the motor driver uses `realtime_udp_channel`.
 
-TX/RX 分线程用于隔离发送背压与接收处理。发送侧可能因 token bucket 等待或 socket busy 退避；这些阻塞不应传播到反馈接收路径。接收侧保持短路径处理：收包、过滤来源、解码、路由、写入设备状态。
+Separating TX and RX isolates send-side backpressure from receive processing. The sender may wait for a token bucket or back off when the socket is busy; these delays should not propagate to the feedback receive path. Receive processing stays short: receive the packet, filter its source, decode and route it, then update device state.
 
-全局运行时对象使用：
+The global runtime object uses:
 
 ```cpp
 std::atomic<std::shared_ptr<runtime_t>>
 ```
 
-`init()` 以 release store 发布新运行时；`command()` 与 `lookup()` 以 acquire load 读取当前运行时。这样可以避免全局互斥锁，并使 shutdown 通过替换 shared\_ptr 完成生命周期切换。
+`init()` publishes a new runtime with a release store; `command()` and `lookup()` read the current runtime with acquire loads. This avoids a global mutex and lets shutdown switch lifetimes by replacing the shared\_ptr.
 
-设备状态内部使用一个 `std::mutex` 保护多个 `sample_t` 字段。读状态时只复制一个 sample；写反馈时在解析完成后一次性进入临界区并更新相关字段。锁的范围限定在设备状态本身，不覆盖 UDP 接收、协议解析或用户控制循环。
+Device state uses one `std::mutex` to protect multiple `sample_t` fields. Reading state copies only one sample. When writing feedback, parsing finishes first, then the code enters the critical section once to update the relevant fields. The lock protects device state only; it does not cover UDP reception, protocol parsing, or the user control loop.
 
-当前实现未采用无锁状态缓存。对 32 电机、500 Hz 主控循环的目标而言，设备级 mutex 已经足够。
+The current implementation does not use a lock-free state cache. A per-device mutex is sufficient for the target of 32 motors and a 500 Hz host control loop.
 
-== 实时性优化
-=== 报文聚合与批处理
-ENCOS 网关协议为 CAN-over-UDP。一个 UDP 包可以携带多个 CAN 帧：
+== Real-Time Optimizations
+=== Packet Aggregation and Batching
+The ENCOS gateway protocol carries CAN over UDP. A single UDP packet can contain multiple CAN frames:
 
 ```text
 +------+-------+----------+-------------------------+----------+------+
@@ -204,27 +204,27 @@ ENCOS 网关协议为 CAN-over-UDP。一个 UDP 包可以携带多个 CAN 帧：
 +------+-------+----------+-------------------------+----------+------+
 ```
 
-每个 CAN entry 固定 14 字节：
+Each CAN entry is a fixed 14 bytes:
 
-`LENGTH = 1 + MSG_CNT * 14`。CRC 为 CRC16-CCITT，覆盖 `TYPE + LENGTH + PAYLOAD`，即从包的第 1 字节开始计算。
+`LENGTH = 1 + MSG_CNT * 14`. The CRC is CRC16-CCITT and covers `TYPE + LENGTH + PAYLOAD`, starting at byte 1 of the packet.
 
-报文聚合针对的是系统调用次数、网关处理次数和 UDP datagram 数量，而非单个字段编码开销。同一 driver 的多条 CAN 命令合并为一个 UDP 包后，32 电机的一次周期控制可压缩为少量 UDP datagram。对高频控制路径而言，该优化直接作用于尾延迟和链路占用。
+Packet aggregation reduces the number of system calls, gateway operations, and UDP datagrams—not the cost of encoding individual fields. Combining multiple CAN commands from the same driver into one UDP packet reduces a single control cycle for 32 motors to a small number of datagrams. In a high-frequency control path, this directly affects tail latency and link utilization.
 
-批处理入口为：
+The batch entry point is:
 
 ```cpp
 template <Command T>
 std::error_code command(std::span<const T> cmds);
 ```
 
-运行时将同一批命令按 driver 分组。每个 driver 内部使用固定数组暂存 CAN 帧，满 `MAX_FRAMES_PER_PACKET` 后立即 flush；批处理结束后 flush 剩余帧。该策略减少 UDP 包数量，同时保留每个电机命令的原始 CAN 语义。
+The runtime groups each batch of commands by driver. Each driver stages CAN frames in a fixed-size array and flushes it as soon as it reaches `MAX_FRAMES_PER_PACKET`; any remaining frames are flushed at the end of the batch. This reduces the number of UDP packets while preserving the original CAN semantics of each motor command.
 
-批处理入口位于公共 API 层。上层控制器生成同周期目标后直接提交 `span`；runtime 根据拓扑绑定自动按 driver 分桶。该结构避免控制代码手工按网关拆分命令，并保证批处理语义在 driver 层实际转化为 UDP 报文聚合。
+The batch entry point is part of the public API. After generating targets for a control cycle, the higher-level controller submits a `span`; the runtime automatically groups commands by driver according to the topology bindings. This avoids manually splitting commands by gateway in control code and ensures the driver turns batching into actual UDP packet aggregation.
 
-批处理语义是 best-effort：一批命令中某些命令可能已经编码、入队或发送；如果后续命令失败，已发生的副作用不会回滚。返回的 `error_code` 只表示批处理中出现过错误，不表示某个具体设备已经执行或拒绝执行。该语义符合周期控制的时效性要求。控制循环关注下一周期参考量的及时提交，而不是对历史参考量逐帧确认。需要可靠确认的配置命令应采用单独策略，不应占用高频控制队列的可靠性预算。
+Batching is best-effort: some commands in a batch may already have been encoded, queued, or sent when a later command fails, and those side effects are not rolled back. The returned `error_code` indicates only that an error occurred somewhere in the batch; it does not say whether a specific device executed or rejected its command. This semantics fits the time-sensitive nature of periodic control. The control loop needs to submit the next cycle's references on time, rather than acknowledge every historical reference frame by frame. Configuration commands that require reliable confirmation should use a separate strategy and should not consume the reliability budget of the high-frequency control queue.
 
-=== 报文发送路径
-发送路径如下：
+=== Packet Transmission Path
+The send path is:
 
 ```text
 command(span<T>)
@@ -239,48 +239,48 @@ command(span<T>)
   -> UDP socket
 ```
 
-`prepare_send()` 从 packet pool 中申请一个固定槽位；`encode_into()` 直接写入该槽位；`commit_send()` 只提交槽号和有效长度。因此 driver 发送路径避免了“先编码到临时 vector，再复制到发送队列”的额外拷贝。
+`prepare_send()` acquires a fixed slot from the packet pool; `encode_into()` writes directly into that slot; `commit_send()` submits only the slot index and payload length. This avoids an extra copy in the driver send path—encoding into a temporary vector and then copying it into the send queue.
 
-该路径的关键在于改变编码目标，而非增加额外抽象。协议编码直接写入发送槽位后，发送队列中的 pending item 只需保存“槽号 + 有效长度”。该结构减少一次内存拷贝和一次临时缓冲分配，并降低发送路径中的动态内存行为。
+The key is to change the encoding destination, not to add another abstraction. Once protocol data is encoded directly into a send slot, each pending item in the send queue needs to store only a slot index and payload length. This removes one memory copy and one temporary buffer allocation, reducing dynamic memory activity in the send path.
 
-=== 控制命令与配置命令的分流
-当前公共命令分为三类：
+=== Separating Control and Configuration Commands
+The current public commands fall into three categories:
 
-+ 流式控制命令：`pvt_command`、`position_command`、`velocity_command`、`torque_command`、`current_command`、`brake_command`。
-+ 设备配置命令：`config_set_command`、`config_query_command`。
-+ 运行时命令：`net_control_command`、`discard_pending_command`。
++ Streaming control commands: `pvt_command`, `position_command`, `velocity_command`, `torque_command`, `current_command`, and `brake_command`.
++ Device configuration commands: `config_set_command` and `config_query_command`.
++ Runtime commands: `net_control_command` and `discard_pending_command`.
 
-流式控制命令是周期性命令。若上层发现控制周期落后，应优先使用 `discard_pending_command` 丢弃尚未发送的旧包，再发送最新控制量。库本身提供丢弃队列接口，但不会自动判断某条控制命令是否过期。
+Streaming control commands are periodic. If the higher-level controller detects that a cycle is late, it should use `discard_pending_command` to discard old packets that have not yet been sent before submitting the latest controls. The library provides an interface to discard queued packets, but does not automatically determine whether a control command has expired.
 
-对控制命令而言，参考量具有时效性。网络短时拥塞后补发过期位置或速度目标会把通信延迟转化为控制误差；因此旧控制包应允许由上层按周期语义丢弃。
+Control references are time-sensitive. Sending a stale position or velocity target after a brief network congestion turns communication delay into control error. The higher-level controller should therefore be able to discard old control packets according to cycle semantics.
 
 #quote(block: true)[
-重复的电机配置命令应该给予覆盖和聚合，可能需要独立的配置报文队列
+Repeated motor configuration commands should be coalesced and aggregated; they may need a separate configuration packet queue.
 ]
 
-=== 限流器与过载策略
-通道配置包含：
+=== Rate Limiting and Overload Policy
+Channel configuration includes:
 
 ```cpp
 size_t max_bandwidth_bps = 1'000'000;
 uint32_t send_queue_slots = 1024;
 ```
 
-发送限流器为 token bucket。桶容量为 `2 * MOTOR_UDP_PACKET_CAP`，当前 `MOTOR_UDP_PACKET_CAP = 512`，因此允许约 1024 字节的短时突发；随后按 `max_bandwidth_bps / 8` 的字节速率补充令牌。
+The send-side rate limiter is a token bucket. Its capacity is `2 * MOTOR_UDP_PACKET_CAP`. With `MOTOR_UDP_PACKET_CAP = 512`, it allows a short burst of about 1,024 bytes, then replenishes tokens at `max_bandwidth_bps / 8` bytes per second.
 
-该限流器用于背压保护，而非精确周期调度。它允许小规模突发通过，并在持续超带宽时拉长发送间隔。该行为限制网关和 socket buffer 压力，同时通过延迟或 `busy` 将过载状态暴露给上层。
+This limiter provides backpressure protection, not precise periodic scheduling. It allows small bursts and lengthens the interval between sends when traffic continuously exceeds the bandwidth limit. This limits pressure on the gateway and socket buffer while exposing overload to higher layers through delays or a `busy` result.
 
-过载策略为：
+The overload policy is:
 
-+ packet pool 无空闲槽位时，`prepare_send()` 返回 `fleet_err::busy`。
-+ pending queue 满时，提交失败并释放槽位。
-+ UDP socket 短时 busy 时，TX 线程最多重试 3 次，初始 backoff 为 100 ms，并指数退避。
-+ `discard_pending_sends()` 可丢弃尚未发送的 pending 包。
++ If no packet-pool slots are free, `prepare_send()` returns `fleet_err::busy`.
++ If the pending queue is full, submission fails and releases the slot.
++ If the UDP socket is briefly busy, the TX thread retries up to three times, starting with a 100 ms backoff and increasing it exponentially.
++ `discard_pending_sends()` discards pending packets that have not yet been sent.
 
-严格周期控制由上层控制循环负责，库只限制最大带宽并约束发送路径抖动。控制器一旦观察到周期落后，应主动降频、丢弃旧包或进入安全策略，而不应依赖通道无限排队。
+Strict periodic control is the responsibility of the higher-level control loop. The library limits the maximum bandwidth and bounds jitter in the send path. When the controller detects a missed cycle, it should lower the rate, discard stale packets, or enter a safe state rather than relying on the channel to queue packets indefinitely.
 
-=== 报文接收路径
-接收路径如下：
+=== Packet Reception Path
+The receive path is:
 
 ```text
 RX thread
@@ -293,12 +293,12 @@ RX thread
   -> motor_device::apply
 ```
 
-接收回调参数为 `bytes_view`，指向 RX 线程内部接收缓冲区，仅在 callback 返回前有效。driver 在回调内同步完成解码和状态应用，不保存该 view。这样可以避免接收路径上的额外堆分配。
+The receive callback takes a `bytes_view` pointing to a buffer owned by the RX thread. It is valid only until the callback returns. The driver decodes the packet and applies the state synchronously within the callback, without retaining the view. This avoids extra heap allocations on the receive path.
 
-反馈路由不扫描设备列表，而是通过 `motor_routes_[port][can_id]` 定位目标设备。未知端口、未知 CAN ID 或广播帧不会更新设备状态。
+Feedback routing does not scan the device list. It uses `motor_routes_[port][can_id]` to locate the target device. Frames with an unknown port, unknown CAN ID, or broadcast address do not update device state.
 
-=== 内存池优化
-发送路径使用固定 packet pool：
+=== Memory Pool Optimization
+The send path uses a fixed packet pool:
 
 ```text
 send_storage = packet_cap * send_queue_slots
@@ -306,14 +306,14 @@ free_slots   = fixed_ring_queue<uint32_t>
 pending      = fixed_ring_queue<uint32_t>
 ```
 
-`packet_buffer` 是一个 RAII 句柄。未 commit 的 buffer 析构时会自动释放槽位；commit 后由 TX 线程发送并释放槽位。该设计将发送路径的内存分配移动到通道初始化阶段，降低运行期分配造成的延迟抖动。
+`packet_buffer` is an RAII handle. If a buffer is destroyed before commit, its slot is released automatically. After commit, the TX thread sends the packet and releases the slot. This moves send-path allocations to channel initialization and reduces latency jitter caused by allocations at runtime.
 
-固定槽位将主要动态分配从运行期移至初始化期。队列满时立即返回 `fleet_err::busy`，而不是继续扩容。对控制系统而言，可预期失败优于不可预期延迟。
+Fixed slots move most dynamic allocation from runtime to initialization. When the queue is full, the system immediately returns `fleet_err::busy` instead of growing it. For a control system, a predictable failure is better than unpredictable latency.
 
-接收路径使用线程栈上的固定 `std::array<uint8_t, MAX_UDP_SIZE>` 作为接收缓冲区，并用 `bytes_view` 向上层传递只读视图。
+The receive path uses a fixed `std::array<uint8_t, MAX_UDP_SIZE>` on the thread stack as its receive buffer and passes a read-only view to higher layers through `bytes_view`.
 
-=== 零拷贝接口 (TODO: 合并到之前的收发路径里）
-实时通道提供两种发送接口：
+=== Zero-Copy Interface (TODO: merge into the send and receive sections above)
+The real-time channel provides two send interfaces:
 
 ```cpp
 err_code send(bytes_view data);
@@ -321,59 +321,59 @@ result<packet_buffer> prepare_send();
 err_code commit_send(packet_buffer&& packet, uint32_t size);
 ```
 
-`send(bytes_view)` 会将用户数据复制到 packet pool。`prepare_send()/commit_send()` 允许调用者直接写入发送槽位。电机驱动采用后者，协议编码直接落在发送槽位中，从而减少拷贝并缩短发送临界路径。
+`send(bytes_view)` copies user data into the packet pool. `prepare_send()/commit_send()` let the caller write directly into a send slot. The motor driver uses the latter, encoding protocol data directly into the slot to reduce copying and shorten the critical send path.
 
-接口保留两条路径：一般调用者可使用 `send(bytes_view)`；性能敏感的 driver 使用槽位接口。该分层避免将 packet pool 细节暴露给所有调用者，同时为关键路径提供直接编码到发送缓冲区的能力。
+The interface keeps both paths: general callers can use `send(bytes_view)`, while performance-sensitive drivers use the slot interface. This keeps packet-pool details hidden from most callers while allowing critical paths to encode directly into the send buffer.
 
-该零拷贝范围仅覆盖主机内存路径；UDP socket 发送仍由操作系统网络栈处理，不能视为端到端零拷贝。
+This zero-copy scope covers only the host-memory path. UDP socket transmission still goes through the operating system's network stack, so this is not end-to-end zero-copy.
 
-== 实机测试与系统优化
-以下关于 Linux 的建议不属于库 API，但会影响实际控制效果。在 RK3588 这类异构平台上，线程迁移和 IRQ 抖动可能超过协议编码本身的影响。因此，性能评估应区分本地 codec、UDP loopback 和真实网关链路。
+== Hardware Testing and System Tuning
+The following Linux recommendations are not part of the library API, but they affect real-world control performance. On heterogeneous platforms such as the RK3588, thread migration and IRQ jitter may have a greater impact than protocol encoding itself. Performance evaluations should therefore distinguish local codec tests, UDP loopback, and real gateway links.
 
-测试平台：
+Test platform:
 
 - CPU: RK3588, 4 \* Cortex-A76 2.4GHz + 4 \* Cortex-A55 1.8GHz, 64KiB Cache Line
 - OS: GNU/linux ok3588 5.0.209-rt89, SMP, PREEMPT\_RT
 - Mem: 8GB 2112MHz
 - Network: st\_gmac + realtek r8168
 
-UDP 转 CAN 的链路，主要走 st\_gmac 这个链路，和底层 MCU 通信，MCU 内控制 CAN 链路。PCIe 网卡总吞吐量更好，但是有一些操作（如 DMA）有额外延迟，不适合实时控制。
+The UDP-to-CAN path mainly uses `st\_gmac` to communicate with the MCU, which controls the CAN bus. The PCIe network card has higher overall throughput, but some operations such as DMA add latency, making it unsuitable for real-time control.
 
-=== Linux 实时性补丁
-内核 已经开启 PREEMPT\_RT ，我们只需要获得启动实时线程的权限，调整频率策略，以及配置 `SCHED_FIFO` 。相关代码实现放在一个独立的分支 #link("https://github.com/jay-waves/servo-fleet/tree/rt-linux")[rt-linux] 上
+=== Linux Real-Time Support
+The kernel already has PREEMPT\_RT enabled. We only need permission to start real-time threads, a frequency-scaling policy, and `SCHED_FIFO` configuration. The related implementation is on the separate #link("https://github.com/jay-waves/servo-fleet/tree/rt-linux")[rt-linux] branch.
 
-这需要用 linux 和 pthread api 对源码进行修改，显然会损害跨平台性，悲\~\~
+This requires platform-specific changes to the source using Linux and pthread APIs, which obviously hurts portability. Sad\~\~
 
-=== Linux 核心绑定
-理想的核心职责划分：
+=== Linux CPU Affinity
+An ideal division of CPU responsibilities:
 
-- CPU 2: 网卡 (st\_gmac) IRQ/SoftIRQ 绑在一个小核心上。注意不要绑在默认的 CPU0\~1 上，其系统任务多，抖动比较重。
-- CPU 3: 本程序的 UDP RX/TX Threads。绑定在一个小核上。实际上，这个交给系统来调度也没问题。
-- CPU 7: 本程序的控制循环，只读取设备状态并提交最新命令。控制算法线程绑定在大核上，并且进行核隔离。
+- CPU 2: Pin the network card's (`st\_gmac`) IRQ/SoftIRQ to a small core. Avoid the default CPUs 0–1, which handle many system tasks and have significant jitter.
+- CPU 3: Pin this program's UDP RX/TX threads to a small core. In practice, letting the OS schedule them also works.
+- CPU 7: Pin the control loop to a big core and isolate that core. The loop only reads device state and submits the latest commands.
 
-CPU2 唯一写设备状态，CPU7唯一读设备状态和发令。因此不会频繁争抢 mutex，状态缓冲区填充到缓存行。
+CPU 2 is the sole writer of device state, while CPU 7 is the sole reader and command sender. This avoids frequent mutex contention and keeps the state buffer within cache lines.
 
-由于 udp rx/tx threads 可能比较多，负载也没有很重。在我的实现中，我只做了这两个处理：
+The UDP RX/TX threads may be numerous, but their load is not heavy. In my implementation, I made only these two changes:
 
-- 把 st\_gmac irq 从 CPU0 迁出，绑定在 CPU2
-- 让控制线程独占 CPU7 ，收发包线程（ASIO 线程）交给操作系统调度。（网络线程弱调度，控制线程强绑定）
+- Move the `st\_gmac` IRQ off CPU 0 and pin it to CPU 2.
+- Reserve CPU 7 for the control thread, and let the OS schedule the send/receive (ASIO) threads. The network threads use weak scheduling; the control thread is firmly pinned.
 
-主要工程问题是跨核缓存失效。当前设备状态由 mutex 保护；RX 线程写入 sample，控制线程读取 sample。该模式保持语义正确，但会引入 cache line 迁移。降低该开销的方向包括：
+The main engineering issue is cross-core cache invalidation. Device state is currently protected by a mutex: the RX thread writes samples, and the control thread reads them. This preserves correct semantics but can cause cache-line migration. Ways to reduce this cost include:
 
-+ 将高频字段按设备或按字段组拆分，减少无关字段共享同一 cache line。
-+ 控制线程批量读取一组设备状态，减少锁获取次数。
-+ RX 线程只做状态写入，不在 callback 中执行重计算。
-+ 对确认为高频只读的字段，可进一步演进为双缓冲或 sequence lock。
-+ 无锁结构应以实测瓶颈为前提；当前 mutex 方案保持较低实现复杂度和明确并发语义。
++ Split high-frequency fields by device or field group to reduce unrelated fields sharing a cache line.
++ Have the control thread read a group of device states in batches to reduce lock acquisitions.
++ Keep the RX thread focused on state updates; do not perform expensive computations in the callback.
++ For fields confirmed to be high-frequency and read-only, consider evolving toward double buffering or a sequence lock.
++ Introduce lock-free structures only when measurements show a bottleneck; the current mutex design is simpler and has clear concurrency semantics.
 
-当前实现优先保证并发边界清晰：接收线程拥有设备状态写入权，控制线程只读取快照；跨核缓存成本通过缩小锁范围和减少共享写入控制。
+The current implementation prioritizes clear concurrency boundaries: the receive thread owns writes to device state, and the control thread reads snapshots only. Cross-core cache costs are managed by keeping lock scope small and reducing shared writes.
 
-=== CAN 协议吞吐量测试
-仓库包含两个相关测试：
+=== CAN Protocol Throughput Tests
+The repository contains two related tests:
 
-+ 本地编解码延迟测试：满包 `MAX_FRAMES_PER_PACKET` 的 CAN 帧循环编码和解码 20000 次。测试要求 encode/decode mean 和 p99 均不超过 100 us，且本地 round trip 不低于 10000 次/s。
-+ 背压测试：瞬时提交 24 个 128 B UDP 包，目标带宽为 102.4 kbps。测试要求实际带宽为目标的 80% 到 115%，限流后的平均包间隔为 8 到 12 ms，p99 包间隔不超过 50 ms，最大排队延迟在 120 到 500 ms。
++ Local codec latency test: encode and decode 20,000 full CAN packets of `MAX_FRAMES_PER_PACKET` frames. The test requires mean and p99 encode/decode latency to stay below 100 µs and at least 10,000 local round trips per second.
++ Backpressure test: submit 24 UDP packets of 128 bytes at once, with a target bandwidth of 102.4 kbps. The test requires actual bandwidth to be 80–115% of the target, an average packet interval of 8–12 ms after rate limiting, a p99 interval no greater than 50 ms, and maximum queueing latency between 120 and 500 ms.
 
-README 中给出的工程估算为：单 UDP 携带 32 个 CAN 帧，400 Hz 时带宽约 1.46 Mbps。因此 30 个左右电机在 1.5 Mbps 控制带宽下几乎没有余量。
+The engineering estimate in the README is about 1.46 Mbps when one UDP packet carries 32 CAN frames at 400 Hz. A system with around 30 motors therefore has almost no headroom at a control bandwidth of 1.5 Mbps.
 
-该带宽估算约束了协议设计空间。链路接近预算时，可靠重试、逐帧确认和额外诊断包都会反映到尾延迟上。性能测试的作用是提供回归边界：后续改动必须同时观察平均吞吐和尾延迟，而非只比较单次编码成本。
+This bandwidth estimate constrains the protocol design space. When the link approaches its budget, reliable retries, per-frame acknowledgements, and extra diagnostic packets all affect tail latency. Performance tests provide regression boundaries: future changes must be evaluated for both average throughput and tail latency, rather than only the cost of a single encoding operation.
