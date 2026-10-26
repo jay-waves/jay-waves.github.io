@@ -48,8 +48,8 @@ main > section:last-of-type {
 
 .hero {
   display: grid;
-  grid-template-columns: 150px minmax(0, 420px);
-  gap: 28px;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: 24px;
   justify-content: start;
   align-items: center;
   padding: 0 0 34px;
@@ -58,7 +58,7 @@ main > section:last-of-type {
 
 .profile {
   display: grid;
-  justify-items: center;
+  justify-items: start;
 }
 
 h1,
@@ -173,7 +173,7 @@ a:hover::after {
   gap: 0.25rem;
   justify-items: start;
   order: 2;
-  max-width: 420px;
+  max-width: 100%;
 }
 
 header p:last-child {
