@@ -2,6 +2,8 @@ name: Update profile cards
 
 on:
   push:
+    branches:
+      - main
     paths-ignore:
       - "assets/**"
   schedule:
@@ -19,6 +21,7 @@ concurrency:
 
 jobs:
   update:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -44,8 +47,25 @@ jobs:
           # Render statically, including text that the original animation reveals.
           sed -i 's#</style>#* { animation: none !important; } .stagger { opacity: 1 !important; }</style>#' "$language_card"
 
+          # Keep the generated card consistent with the site's Georgia serif style and flush-left layout.
+          python - "$language_card" <<'PY'
+          from pathlib import Path
+          import sys
+
+          card = Path(sys.argv[1])
+          svg = card.read_text(encoding="utf-8")
+          font_stack = "Georgia, 'Times New Roman', 'Noto Serif', 'Noto Serif CJK SC', 'Noto Serif SC', serif"
+          svg = svg.replace("'Segoe UI', Ubuntu, Sans-Serif", font_stack)
+          svg = svg.replace("'Segoe UI', Ubuntu, \"Helvetica Neue\", Sans-Serif", font_stack)
+          svg = svg.replace('"Segoe UI", Ubuntu, Sans-Serif', font_stack)
+          svg = svg.replace('<svg data-testid="lang-items" x="25">', '<svg data-testid="lang-items" x="0">')
+          card.write_text(svg, encoding="utf-8", newline="\n")
+          PY
+
           test -s "$language_card"
           grep --max-count=1 --quiet "<svg" "$language_card"
+          grep --quiet "Georgia, 'Times New Roman'" "$language_card"
+          grep --quiet 'data-testid="lang-items" x="0"' "$language_card"
           test -s "$contribution_chart"
           grep --max-count=1 --quiet "<svg" "$contribution_chart"
 
