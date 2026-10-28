@@ -9,6 +9,6 @@ mkdir -p "$archive_dir"
 timestamp=$(date '+%Y%m%d-%H%M%S')
 archive_path="$archive_dir/source-$timestamp.zip"
 
-git ls-files -z | zip -q -X -0 -@ "$archive_path"
+git ls-files -z | xargs -0 7z a -tzip -mx=0 "$archive_path" --
 
 printf 'Created archive: %s\n' "$archive_path"
