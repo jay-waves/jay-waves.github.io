@@ -72,6 +72,7 @@ jobs:
                   "'Segoe UI', Ubuntu, Sans-Serif": font,
                   "'Segoe UI', Ubuntu, \"Helvetica Neue\", Sans-Serif": font,
                   '"Segoe UI", Ubuntu, Sans-Serif': font,
+                  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'": font,
                   'font-family="Arial, Helvetica, sans-serif"': f'font-family="{font}"',
                   "font-family='Arial, Helvetica, sans-serif'": f"font-family='{font}'",
               }
@@ -79,6 +80,8 @@ jobs:
                   svg = svg.replace(old, new)
               if left:
                   svg = svg.replace('<svg data-testid="lang-items" x="25">', '<svg data-testid="lang-items" x="0">')
+              if "<svg" not in svg or font not in svg:
+                  raise SystemExit(f"Unexpected SVG or font declaration in {name}")
               out = Path("_site/assets") / name
               out.parent.mkdir(parents=True, exist_ok=True)
               out.write_text(svg, encoding="utf-8", newline="\n")
