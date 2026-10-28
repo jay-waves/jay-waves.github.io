@@ -67,7 +67,7 @@ Advantages of running the Mihomo core directly:
 Disadvantages of running the core directly:
 
 + The learning and configuration costs are higher. It is not ready to use out of the box, and documentation is scattered. An AI assistant may help.
-+ Subscription URLs cannot be parsed directly; they need to be converted with a tool such as Sub-Store. This is inconvenient, but a workaround appears below.
++ Subscription URLs cannot be parsed directly; they need to be converted with a tool such as #link("https://sub-store.vercel.app/subs")[Sub-Store]. This is inconvenient, but a workaround appears below.
 
 == Download and Installation
 - Download the #link("https://github.com/MetaCubeX/mihomo/releases")[`mihomo` core] for your operating system.
@@ -104,7 +104,7 @@ dns:
 === Configure a Mihomo Proxy Provider
 
 Mihomo core can directly reads a list of proxies (in yaml) or the subscription URL provided by
-a service. No converter #footnote[like Sub-Store or #link("https://github.com/MetaCubeX/subconverter")[subconverter]] is needed to turn the URL into a YAML list of nodes in most cases.
+a service. No converter #footnote[like #link("https://sub-store.vercel.app/subs")[Sub-Store] or #link("https://github.com/MetaCubeX/subconverter")[subconverter]] is needed to turn the URL into a YAML list of nodes in most cases.
 
 Import the subscription URL into the Mihomo core as a `proxy-provider`. 
 The configuration below requests an update from subscription service every day and checks the resulting 
