@@ -1,0 +1,108 @@
+name: Build and deploy site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: typst-community/setup-typst@v4
+      - name: Build site
+        env:
+          LANGUAGE_CARD_URL: "https://github-stats-extended.vercel.app/api/top-langs?username=jay-waves&layout=compact&card_width=360&hide_title=true&langs_count=6&hide=CSS%2CTypst%2CHTML&hide_border=true&bg_color=00000000&title_color=111111&text_color=555555"
+          CONTRIBUTION_CHART_URL: "https://ghchart.rshah.org/jay-waves"
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp -a index.html style.css feed.xml CNAME blogs assets _site/
+          find _site/blogs/20?? -type f -name index.html -delete 2>/dev/null || true
+          curl --fail --silent --show-error --location --retry 3 --max-time 60 "$LANGUAGE_CARD_URL" -o "$RUNNER_TEMP/top-langs.svg"
+          curl --fail --silent --show-error --location --retry 3 --max-time 60 "$CONTRIBUTION_CHART_URL" -o "$RUNNER_TEMP/contributions.svg"
+          curl --fail --silent --show-error --location --retry 3 --max-time 60 https://cdn.jsdelivr.net/npm/pele@1.6.0/dist/pele.global.js -o _site/assets/pele.global.js
+          sed -i 's#</style>#* { animation: none !important; } .stagger { opacity: 1 !important; }</style>#' "$RUNNER_TEMP/top-langs.svg"
+          python - "$RUNNER_TEMP" <<'PY'
+          import sys
+          from pathlib import Path
+          font = "Georgia, 'Times New Roman', 'Noto Serif', 'Noto Serif CJK SC', 'Noto Serif SC', serif"
+          for name, left in (("top-langs.svg", True), ("contributions.svg", False)):
+              path = Path(sys.argv[1]) / name
+              svg = path.read_text(encoding="utf-8")
+              replacements = {
+                  "'Segoe UI', Ubuntu, Sans-Serif": font,
+                  "'Segoe UI', Ubuntu, \"Helvetica Neue\", Sans-Serif": font,
+                  '"Segoe UI", Ubuntu, Sans-Serif': font,
+                  'font-family="Arial, Helvetica, sans-serif"': f'font-family="{font}"',
+                  "font-family='Arial, Helvetica, sans-serif'": f"font-family='{font}'",
+              }
+              for old, new in replacements.items():
+                  svg = svg.replace(old, new)
+              if left:
+                  svg = svg.replace('<svg data-testid="lang-items" x="25">', '<svg data-testid="lang-items" x="0">')
+              out = Path("_site/assets") / name
+              out.parent.mkdir(parents=True, exist_ok=True)
+              out.write_text(svg, encoding="utf-8", newline="\n")
+          PY
+          mapfile -t articles < <(find blogs -type f -name index.typ -print | sort)
+          for source in "${articles[@]}"; do
+            article_dir=$(dirname "$source")
+            (cd "$article_dir" && typst compile --features html --pretty index.typ "$GITHUB_WORKSPACE/_site/$article_dir/index.html")
+          done
+          python - <<'PY'
+          from datetime import datetime
+          from pathlib import Path
+          import re
+          for path in Path("_site/blogs").glob("20??/??/*/index.html"):
+              match = re.search(r"/(\d{4})/(\d{2})/", path.as_posix())
+              if not match: continue
+              year, month = match.groups()
+              label = datetime(int(year), int(month), 1).strftime("%b %Y")
+              text = path.read_text(encoding="utf-8")
+              meta = f'<p class="article-meta"><span>Yu, Jia-Wei</span><time datetime="{year}-{month}">{label}</time></p>'
+              if 'class="article-meta"' in text:
+                  text = re.sub(r'<p class="article-meta">.*?</p>', meta, text, count=1)
+              else:
+                  text = text.replace('<div class="typst-document">', '<div class="typst-document">\n      ' + meta, 1)
+              text = re.sub(r"(?m)^\s*\.article-meta(?: time)? \{[^\n]*\}\n?", "", text)
+              text = re.sub(r"(?s)\s*/\* PELE MERMAID CSS START \*/.*?/\* PELE MERMAID CSS END \*/\s*", "\n", text)
+              text = re.sub(r"(?s)<!-- PELE MERMAID START -->.*?<!-- PELE MERMAID END -->\s*", "", text)
+              mermaid = 'data-lang="mermaid"' in text
+              rules = [".article-meta { display: flex; gap: .65rem; margin: 0 0 1rem; color: var(--md-muted); font: 400 .875rem/1.4 var(--md-font-serif); }", ".article-meta time { color: inherit; }"]
+              if mermaid:
+                  rules += ["/* PELE MERMAID CSS START */", ".typst-document pre.mermaid { --pele-bg: transparent; --pele-fg: var(--md-fg); --pele-muted: var(--md-muted); --pele-line: var(--md-fg); --pele-surface: var(--md-pre-bg); --pele-surface-alt: var(--md-border-muted); --pele-border: var(--md-border); --pele-accent: var(--md-accent); --pele-font: var(--md-font-serif); --pele-font-mono: var(--md-font-mono); margin: 1rem 0; padding: 0; overflow: visible; color: var(--md-fg); background: transparent; border: 0; }", ".typst-document pre.mermaid > svg { display: block; max-width: 100%; }", "/* PELE MERMAID CSS END */"]
+              text = text.replace("</style>", "\n      " + "\n      ".join(rules) + "\n    </style>", 1)
+              if mermaid:
+                  js = '<script src="/assets/pele.global.js"></script>\n<script>(() => { if (!window.pele) return; document.querySelectorAll(\'pre > code[data-lang="mermaid"]\').forEach(code => { const el = code.parentElement; el.classList.add("mermaid"); window.pele.mount(el, code.textContent, { fontSize: 14 }); }); })();</script>\n'
+                  text = text.replace("</body>", js + "</body>", 1)
+              path.write_text(text, encoding="utf-8", newline="\n")
+          PY
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+          retention-days: 3
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
