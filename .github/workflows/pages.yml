@@ -41,7 +41,21 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp -a index.html style.css feed.xml CNAME blogs assets _site/
+          cp -a index.html style.css feed.xml CNAME assets _site/
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          def ignored(directory, names):
+              root = Path(directory)
+              return [name for name in names if name == "PAGES_IGNORE" or
+                      ((root / name).is_dir() and (root / name / "PAGES_IGNORE").is_file())]
+
+          if not Path("blogs/PAGES_IGNORE").is_file():
+              shutil.copytree("blogs", "_site/blogs", ignore=ignored)
+          else:
+              Path("_site/blogs").mkdir()
+          PY
           find _site/blogs/20?? -type f -name index.html -delete 2>/dev/null || true
           curl --fail --silent --show-error --location --retry 3 --max-time 60 "$LANGUAGE_CARD_URL" -o "$RUNNER_TEMP/top-langs.svg"
           curl --fail --silent --show-error --location --retry 3 --max-time 60 "$CONTRIBUTION_CHART_URL" -o "$RUNNER_TEMP/contributions.svg"
@@ -69,8 +83,9 @@ jobs:
               out.parent.mkdir(parents=True, exist_ok=True)
               out.write_text(svg, encoding="utf-8", newline="\n")
           PY
-          mapfile -t articles < <(find blogs -type f -name index.typ -print | sort)
-          for source in "${articles[@]}"; do
+          mapfile -t articles < <(find _site/blogs -type f -name index.typ -print | sort)
+          for staged_source in "${articles[@]}"; do
+            source=${staged_source#_site/}
             article_dir=$(dirname "$source")
             (cd "$article_dir" && typst compile --features html --pretty index.typ "$GITHUB_WORKSPACE/_site/$article_dir/index.html")
           done
