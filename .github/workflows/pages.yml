@@ -22,6 +22,17 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+      - name: Check out Typst template
+        uses: actions/checkout@v6
+        with:
+          repository: jay-waves/yst-template
+          ref: 9f14aa7cffa9e6764937b2bad7cb57aeae61d5da
+          path: .typst-template
+          persist-credentials: false
+      - name: Install local Typst package
+        run: |
+          mkdir -p "$HOME/.local/share/typst/packages/local/ypst-template"
+          mv .typst-template "$HOME/.local/share/typst/packages/local/ypst-template/0.1.0"
       - uses: typst-community/setup-typst@v4
       - name: Build site
         env:
