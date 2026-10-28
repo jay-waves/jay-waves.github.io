@@ -20,15 +20,11 @@ This article focuses on configuring Clash manually. Clash is a command-line tool
 
 In mainland China, network proxies need #emph[encrypted transport protocols] to conceal traffic behavior; otherwise, various firewall systems may identify and block them. Although TLS already provides encryption at the application layer, we may also want to protect routing information and behavior at lower layers, such as the transport and network layers. This is why proxy protocols such as Shadowsocks, VMess, and AnyTLS exist.
 
-#context if target() == "html" {
-  raw(
-    "flowchart TB\n  subgraph PC[PC]\n    direction TB\n    Apps[Apps / VMs]\n    Client[Local Proxy Client]\n    Apps -->|SOCKS5 / HTTP| Client\n  end\n  Client -->|Shadowsocks / VMess / AnyTLS| Server[Remote Proxy Server]\n  Server -->|HTTPS / Other Traffic| Websites[Websites outside GFW]\n  Websites --> Sources[Apple, Google, GitHub, etc.]",
-    lang: "mermaid",
-    block: true,
-  )
-} else {
-  figure(image("./mermaid2.svg", width: 25%))
-}
+#raw(
+  "flowchart TB\n  subgraph PC[PC]\n    direction TB\n    Apps[Apps / VMs]\n    Client[Local Proxy Client]\n    Apps -->|SOCKS5 / HTTP| Client\n  end\n  Client -->|Shadowsocks / VMess / AnyTLS| Server[Remote Proxy Server]\n  Server -->|HTTPS / Other Traffic| Websites[Websites outside GFW]\n  Websites --> Sources[Apple, Google, GitHub, etc.]",
+  lang: "mermaid",
+  block: true,
+)
 
 
 == Common Options
@@ -252,15 +248,11 @@ rules: # Format: rule type, scope, proxy group.
 
 === Architecture Diagram
 
-#context if target() == "html" {
-  raw(
-    "flowchart TB\n  subgraph Provisioning[Proxy Provisioning]\n    Providers[Subscription Servers]\n    Subconverter[Subconverter]\n    Nodes[Proxy Providers]\n    Providers --> Subconverter\n    Subconverter -->|proxy-providers| Nodes\n  end\n  subgraph RuleProvisioning[Rule Provisioning]\n    RuleProviders[Remote Servers]\n    RuleProvider[Rule Providers]\n    RuleProviders -->|rule-providers| RuleProvider\n  end\n  subgraph Routing[Traffic Routing]\n    User[User Traffic]\n    Inbound[Mihomo Inbound: TUN / Mixed]\n    Metadata[Destination: Domain / IP / Process]\n    Rules[Routing Rules]\n    Groups[Proxy Groups]\n    SelectedNode[Selected Proxy Node]\n    Remote[Remote Proxy Server]\n    Destination[Destination Website]\n    Reject[Rejected]\n    DNS[DNS Resolver]\n    User --> Inbound\n    Inbound --> Metadata\n    Metadata --> Rules\n    Rules -->|PROXY| Groups\n    Groups --> SelectedNode\n    SelectedNode --> Remote\n    Remote --> Destination\n    Rules -->|DIRECT| Destination\n    Rules -->|REJECT| Reject\n    Inbound -.->|DNS queries| DNS\n    DNS -.->|Domain / IP result| Metadata\n  end\n  RuleProvider -.->|third-party rules| Rules\n  Nodes -.->|Available nodes| Groups",
-    lang: "mermaid",
-    block: true,
-  )
-} else {
-  figure(image("./mermaid1.svg", width: 70%))
-}
+#raw(
+  "flowchart TB\n  subgraph Provisioning[Proxy Provisioning]\n    Providers[Subscription Servers]\n    Subconverter[Subconverter]\n    Nodes[Proxy Providers]\n    Providers --> Subconverter\n    Subconverter -->|proxy-providers| Nodes\n  end\n  subgraph RuleProvisioning[Rule Provisioning]\n    RuleProviders[Remote Servers]\n    RuleProvider[Rule Providers]\n    RuleProviders -->|rule-providers| RuleProvider\n  end\n  subgraph Routing[Traffic Routing]\n    User[User Traffic]\n    Inbound[Mihomo Inbound: TUN / Mixed]\n    Metadata[Destination: Domain / IP / Process]\n    Rules[Routing Rules]\n    Groups[Proxy Groups]\n    SelectedNode[Selected Proxy Node]\n    Remote[Remote Proxy Server]\n    Destination[Destination Website]\n    Reject[Rejected]\n    DNS[DNS Resolver]\n    User --> Inbound\n    Inbound --> Metadata\n    Metadata --> Rules\n    Rules -->|PROXY| Groups\n    Groups --> SelectedNode\n    SelectedNode --> Remote\n    Remote --> Destination\n    Rules -->|DIRECT| Destination\n    Rules -->|REJECT| Reject\n    Inbound -.->|DNS queries| DNS\n    DNS -.->|Domain / IP result| Metadata\n  end\n  RuleProvider -.->|third-party rules| Rules\n  Nodes -.->|Available nodes| Groups",
+  lang: "mermaid",
+  block: true,
+)
 
 === Example: Create a Dedicated Proxy Route for AI Websites
 Suppose we have a node file at `./proxies/ai.yaml`. Import it into Mihomo, then filter out nodes in regions such as Hong Kong and Macao that are unreachable or unsuitable. Test each node against OpenAI's status endpoint and select a good one for accessing ChatGPT in a browser.
