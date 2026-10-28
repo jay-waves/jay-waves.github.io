@@ -1,4 +1,4 @@
-#import "@local/ypst-template:0.1.0" as theme 
+#import "@local/ypst-template:0.1.0" as theme
 
 #import theme: template, sidenote, theorem, sidenote
 
@@ -6,7 +6,8 @@
 
 = My Ultimate Setup for Network Proxies in Mainland China
 == TL;DR
-This article explains how I configure and use the standalone Mihomo core in a mainland China network environment.
+This article explains how I configure and use the standalone Mihomo core in a mainland China network
+environment.
 
 #strong[This article is for technical research and discussion of compliance only. It is not operational or legal advice. Readers should make sure their actions comply with local laws, regulations, and service terms. This article does not encourage illegal activity, violations, or infringement of third-party rights.]
 
@@ -94,7 +95,7 @@ dns:
   use-system-hosts: true
   default-nameserver:
     - 223.5.5.5
-    - 202.112.128.51 # ns.lib.buaa.edu.cn 
+    - 202.112.128.51 # ns.lib.buaa.edu.cn
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
@@ -103,38 +104,29 @@ dns:
 ```
 
 == Configure Proxy Sources in Mihomo
-=== Configure subconverter
-The Mihomo core reads a list of proxies, not the subscription URL provided by a service. A converter is therefore needed to turn the URL into a YAML list of nodes that Mihomo can read. Common tools include Sub-Store and subconverter. I recommend #link("https://github.com/MetaCubeX/subconverter")[subconverter], which is lightweight to deploy.
-
-subconverter exposes an HTTP API. If it runs locally on port `25500`, the endpoint looks like this:
-
-```url
-http://127.0.0.1:25500/sub?target=XXX&url=YYY
-```
-
-URL parameters:
-
-- `target=XXX` specifies the output format; here, use `target=clash`.
-- `url=YYY` is the source URL provided by the proxy service. It must be URL-encoded, for example: `url=https%3A%2F%2Fc7a91e3b%2D84d2%2D4c6f%2D`.
-
-You can run subconverter locally or deploy it on a server and expose its endpoint through an nginx reverse proxy. If you run it locally, remember that traffic to subconverter may also be captured by Mihomo and routed incorrectly, making some provider URLs unreachable. See the routing rules below.
 
 === Configure a Mihomo Proxy Provider
-Import the nodes processed by subconverter into the Mihomo core as a `proxy-provider`. The configuration below requests an update from subconverter every day and checks the resulting nodes' connectivity using `gstatic`.
+
+Mihomo core can directly reads a list of proxies (in yaml) or the subscription URL provided by
+a service. No converter #footnote[like Sub-Store or #link("https://github.com/MetaCubeX/subconverter")[subconverter]] is needed to turn the URL into a YAML list of nodes in most cases.
+
+Import the subscription URL into the Mihomo core as a `proxy-provider`. 
+The configuration below requests an update from subscription service every day and checks the resulting 
+nodes' connectivity using `gstatic` (connectivity with Google).
 
 ```yaml
 proxy-providers:
   teacat:
-    url: http://127.0.0.1:25500/sub?target=clash&url=https%xxxxxxxx
+    url: https%xxxxxxxx
     path: ./proxies/teacat.yaml
-    type: http 
-    use-system-proxy: false 
-    interval:  86400 
+    type: http
+    use-system-proxy: false
+    interval:  86400
     health-check:
-      enable: true 
+      enable: true
       url: https://www.gstatic.com/generate_204
-      interval: 600 
-      timeout: 3000 
+      interval: 600
+      timeout: 3000
       lazy: false
       expected-status: 204
 ```
@@ -160,19 +152,19 @@ Besides custom proxy groups, Mihomo provides several built-in groups:
 
 ```yaml
 proxy-groups:
-  - name: RABBIT 
-    type: url-test 
+  - name: RABBIT
+    type: url-test
     use: [rabbit]  # url-test does not probe nodes; it sorts the health-check results and selects one.
-    interval: 300  
+    interval: 300
     lazy: true     # Sort and select only when the group is used.
     tolerance: 50  # Avoid frequent switching; switch only when the improvement exceeds 50 ms.
 
   - name: TEACAT
-    type: url-test 
-    use: [teacat] 
-    interval: 300 
-    lazy: true 
-    tolerance: 50 
+    type: url-test
+    use: [teacat]
+    interval: 300
+    lazy: true
+    tolerance: 50
 
   - name: GLOBAL
     type: select
@@ -198,8 +190,8 @@ Mihomo provides the following routing rule types for these needs:
 #figure(
   align(center)[#table(
     columns: 3,
-    align: (auto,auto,auto,),
-    table.header([Rule Type], [Description], [Example],),
+    align: (auto, auto, auto),
+    table.header([Rule Type], [Description], [Example]),
     table.hline(),
     [`GEOIP`], [Match the country or region associated with the destination IP], [`GEOIP,CN,DIRECT`],
     [`GEOSITE`], [Match a Geosite domain category], [`GEOSITE,youtube,PROXY`],
@@ -213,9 +205,9 @@ Mihomo provides the following routing rule types for these needs:
     [`IP-CIDR`], [Match an IPv4 or IPv6 CIDR range], [`IP-CIDR,192.168.0.0/16,DIRECT,no-resolve`],
     [`IP-SUFFIX`], [Match a specified IP address suffix range], [`IP-SUFFIX,8.8.8.8/24,PROXY`],
     [`MATCH`], [Match all remaining requests unconditionally, usually as the final fallback], [`MATCH,PROXY`],
-  )]
-  , kind: table
-  )
+  )],
+  kind: table,
+)
 
 The routing rule format is `rule-type,domain,proxy-group`. It sends all traffic matching the specified scope and rule type through the selected proxy group. Rules are evaluated from top to bottom.
 
@@ -255,7 +247,7 @@ rules: # Format: rule type, scope, proxy group.
 == Overview
 
 #figure(
-  image("./mihomo-dashboard.webp", width: 80%)
+  image("./mihomo-dashboard.webp", width: 80%),
 )
 
 === Architecture Diagram
@@ -278,7 +270,7 @@ This helps avoid being blocked by AI services such as ChatGPT because of poor no
 ```yaml
 proxy-providers:
   ai:
-    type: http 
+    type: http
     path: ./proxies/ai.yaml
     url: http://127.0.0.1:25500/sub?target=clash&url=https%xxxxxxx
     filter: "(?i)(美国|美國|US|USA|United States|日本|JP|Japan|新加坡|SG|Singapore|台湾|台灣|TW|Taiwan)"
@@ -286,7 +278,7 @@ proxy-providers:
     interval: 86400
 
     health-check:
-      enable: true 
+      enable: true
       expected-status: 401
       url: "https://api.openai.com/v1/models"
       interval: 900
@@ -342,7 +334,7 @@ This example assumes the `mihomo.exe` core and its `config.yaml` are both in `D:
 </service>
 ```
 
-`subconverter` can also be configured as a service this way. Note that WinSW registers services under the LocalSystem account by default, not the current user.
+Note that WinSW registers services under the LocalSystem account by default, not the current user.
 
 === Start with a Startup Script
 If wrapping and managing a service with WinSW feels too complicated, use the Windows Startup folder instead:
@@ -372,7 +364,7 @@ Be careful about security. #strong[Binding to all addresses allows every machine
 - Require a username and password (as below), then connect using `http://you:passwd@192.168.xx.xxx:7890`.
 
 ```yaml
-authentication: 
+authentication:
   - "you:passwd"
 ```
 
@@ -383,7 +375,7 @@ Extract the packaged MetaCubeXD files to a directory such as `E:/metacubexd-ui`.
 
 ```yaml
 external-controller: 127.0.0.1:9090
-external-ui:  "E:/metacubexd-ui" 
+external-ui:  "E:/metacubexd-ui"
 ```
 
 === Tuning (TODO)

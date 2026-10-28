@@ -125,16 +125,22 @@ In this loop, the controller reads state snapshots and submits the latest refere
 === Network Topology
 The target topology has 32 motors, two MCU gateways, and four CAN buses:
 
-```text
-Host controller
-  |
-  +-- UDP channel 0 -> MCU gateway 0
-  |       +-- CAN0 -> 8 motors
-  |       +-- CAN1 -> 8 motors
-  |
-  +-- UDP channel 1 -> MCU gateway 1
-          +-- CAN0 -> 8 motors
-          +-- CAN1 -> 8 motors
+```mermaid
+flowchart TD
+    H["Host Controller"]
+
+    H -->|UDP Channel 0| G0["MCU Gateway 0"]
+    H -->|UDP Channel 1| G1["MCU Gateway 1"]
+
+    G0 --> C00["CAN0"]
+    G0 --> C01["CAN1"]
+    G1 --> C10["CAN0"]
+    G1 --> C11["CAN1"]
+
+    C00 --> M00["8 Motors"]
+    C01 --> M01["8 Motors"]
+    C10 --> M10["8 Motors"]
+    C11 --> M11["8 Motors"]
 ```
 
 In `fleet_config`, each `channel_config` represents a UDP gateway connection, and each `motor_config` represents a logical motor. A motor configuration contains:
@@ -146,13 +152,23 @@ name, channel, model, can_port, can_id
 Topology complexity is resolved during initialization. The control loop does not depend on gateway numbers, CAN bus numbers, or CAN IDs; it holds only a `device_id` or a `motor_interface` pointer. Configuration errors surface during `init()`, avoiding runtime routing uncertainty in the periodic control path.
 
 === Device Interface and Driver Design
-```text
-                   command
-  user/controller ---------> runtime ---------> motor_driver ---------> channel
-        |                                      |
-        | read feedback                        | apply feedback
-        v                                      v
-  motor_interface ----------------------> motor_device
+
+```mermaid
+flowchart LR
+    U["User / Controller"]
+    R["Runtime"]
+    D["Motor Driver"]
+    C["Channel"]
+    I["Motor Interface"]
+    M["Motor Device"]
+
+    U -->|Command| R
+    R --> D
+    D --> C
+
+    U -->|Read Feedback| I
+    D -->|Apply Feedback| M
+    I --> M
 ```
 
 `runtime` handles lifecycle management, configuration validation, and command dispatch. `motor_driver` handles ENCOS CAN-over-UDP protocol encoding, transmission, reception, routing, and feedback parsing. `motor_device` owns the device-state cache. `motor_interface` is a read-only public interface that keeps higher layers away from driver internals.
