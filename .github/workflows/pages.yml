@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - uses: typst-community/setup-typst@v4
+      - uses: jay-waves/ypst-template@main
       - name: Build site
         env:
           LANGUAGE_CARD_URL: "https://github-stats-extended.vercel.app/api/top-langs?username=jay-waves&layout=compact&card_width=360&hide_title=true&langs_count=6&hide=CSS%2CTypst%2CHTML&hide_border=true&bg_color=00000000&title_color=111111&text_color=555555"
