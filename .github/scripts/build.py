@@ -7,14 +7,10 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
-import urllib.error
-import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = Path(__file__).resolve().parent
 OUTPUT = ROOT / "dist" / "preview"
-PELE_URL = "https://cdn.jsdelivr.net/npm/pele@1.6.0/dist/pele.global.js"
 TEMPLATE_URL = "https://github.com/jay-waves/yst-template.git"
 TEMPLATE_BRANCH = "main"
 
@@ -93,24 +89,14 @@ def build(args, parser):
         relative = staged.relative_to(OUTPUT)
         source = ROOT / relative
         print(f"Compiling {relative.as_posix()}", flush=True)
-        result = subprocess.run(["typst", "compile", "--features", "html", "--pretty",
-                                 "index.typ", str(staged.with_suffix('.html'))], cwd=source.parent)
+        wrapper = Path(os.environ["TYPST_PACKAGE_PATH"]) / "local" / "ypst-template" / "0.1.0" / "typst.py"
+        result = subprocess.run([sys.executable, str(wrapper), "compile", "index.typ",
+                                 str(staged.parent), "--site-root", str(OUTPUT),
+                                 "--no-line-anchors"], cwd=source.parent)
         if result.returncode:
             failed.append(relative.as_posix())
 
     subprocess.run([sys.executable, str(SCRIPTS / "postprocess-blogs.py"), str(OUTPUT)], check=True)
-    for attempt in range(4):
-        try:
-            with urllib.request.urlopen(PELE_URL, timeout=60) as response:
-                (OUTPUT / "assets" / "pele.global.js").write_bytes(response.read())
-            break
-        except (OSError, urllib.error.URLError) as error:
-            if attempt < 3:
-                time.sleep(2 ** attempt)
-                continue
-            print(f"Error: Mermaid renderer could not be downloaded: {error}", file=sys.stderr)
-            return 1
-
     print(f"\nCompiled {len(sources) - len(failed)}/{len(sources)} articles into {OUTPUT}")
     if failed:
         print("Failed: " + ", ".join(failed), file=sys.stderr)
