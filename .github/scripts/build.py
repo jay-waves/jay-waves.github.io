@@ -78,6 +78,7 @@ def build(args, parser):
 
     if not args.all and (ROOT / "blogs" / "PAGES_IGNORE").is_file():
         (OUTPUT / "blogs").mkdir()
+        shutil.copy2(ROOT / "blogs" / "index.html", OUTPUT / "blogs" / "index.html")
     else:
         shutil.copytree(ROOT / "blogs", OUTPUT / "blogs", ignore=ignored)
     for path in (OUTPUT / "blogs").glob("20??/**/index.html"):
@@ -96,11 +97,12 @@ def build(args, parser):
         if result.returncode:
             failed.append(relative.as_posix())
 
-    subprocess.run([sys.executable, str(SCRIPTS / "postprocess-blogs.py"), str(OUTPUT)], check=True)
     print(f"\nCompiled {len(sources) - len(failed)}/{len(sources)} articles into {OUTPUT}")
     if failed:
         print("Failed: " + ", ".join(failed), file=sys.stderr)
         return 1
+    subprocess.run([sys.executable, str(SCRIPTS / "postprocess-blogs.py"), str(OUTPUT)], check=True)
+    subprocess.run([sys.executable, str(SCRIPTS / "generate-blog-list.py"), str(OUTPUT)], check=True)
     (OUTPUT / ".nojekyll").touch()
     return 0
 
