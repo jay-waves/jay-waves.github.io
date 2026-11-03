@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Build the site. Use --all to include PAGES_IGNORE articles."""
 import argparse
-import importlib.util
-import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -11,17 +9,6 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = Path(__file__).resolve().parent
 OUTPUT = ROOT / "dist" / "preview"
-def package_root():
-    if os.environ.get("TYPST_PACKAGE_PATH"):
-        return Path(os.environ["TYPST_PACKAGE_PATH"])
-    if sys.platform == "win32":
-        return Path(os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming") / "typst" / "packages"
-    if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / "typst" / "packages"
-    data_home = Path(os.environ.get("XDG_DATA_HOME", ""))
-    if not data_home.is_absolute():
-        data_home = Path.home() / ".local" / "share"
-    return data_home / "typst" / "packages"
 
 
 def main():
@@ -32,13 +19,9 @@ def main():
 
 
 def build(args, parser):
-    if not shutil.which("typst"):
-        parser.error("typst is not on PATH; install Typst before building")
-    wrapper = package_root() / "local" / "ypst-template" / "0.1.0" / "typst.py"
-    if not wrapper.is_file():
-        parser.exit(1, f"Typst template not found at {wrapper}. Install it using the ypst-template installer.\n")
-    if importlib.util.find_spec("tree_sitter_language_pack") is None:
-        parser.exit(1, "Missing template dependencies. Install them from the ypst-template repository's requirements.txt.\n")
+    for executable in ("ypst", "typst"):
+        if not shutil.which(executable):
+            parser.error(f"{executable} is not on PATH; install it before building")
 
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
@@ -70,9 +53,8 @@ def build(args, parser):
         relative = staged.relative_to(OUTPUT)
         source = ROOT / relative
         print(f"Compiling {relative.as_posix()}", flush=True)
-        result = subprocess.run([sys.executable, str(wrapper), "compile", "index.typ",
-                                 str(staged.parent), "--site-root", str(OUTPUT),
-                                 "--no-line-anchors"], cwd=source.parent)
+        result = subprocess.run(["ypst", "compile", str(source), str(staged.parent),
+                                 "--root", str(ROOT), "--site-root", str(OUTPUT)], cwd=ROOT)
         if result.returncode:
             failed.append(relative.as_posix())
 

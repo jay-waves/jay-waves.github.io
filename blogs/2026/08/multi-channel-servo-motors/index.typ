@@ -125,6 +125,7 @@ In this loop, the controller reads state snapshots and submits the latest refere
 === Network Topology
 The target topology has 32 motors, two MCU gateways, and four CAN buses:
 
+#mermaid[
 ```mermaid
 flowchart TD
     H["Host Controller"]
@@ -142,6 +143,7 @@ flowchart TD
     C10 --> M10["8 Motors"]
     C11 --> M11["8 Motors"]
 ```
+]
 
 In `fleet_config`, each `channel_config` represents a UDP gateway connection, and each `motor_config` represents a logical motor. A motor configuration contains:
 
@@ -153,6 +155,7 @@ Topology complexity is resolved during initialization. The control loop does not
 
 === Device Interface and Driver Design
 
+#mermaid[
 ```mermaid
 flowchart LR
     U["User / Controller"]
@@ -170,6 +173,7 @@ flowchart LR
     D -->|Apply Feedback| M
     I --> M
 ```
+]
 
 `runtime` handles lifecycle management, configuration validation, and command dispatch. `motor_driver` handles ENCOS CAN-over-UDP protocol encoding, transmission, reception, routing, and feedback parsing. `motor_device` owns the device-state cache. `motor_interface` is a read-only public interface that keeps higher layers away from driver internals.
 
